@@ -1,46 +1,44 @@
-from requests import get
+from pprint import pprint
+
+from base_api import BaseAPiClient
 
 
-class APIAdapter:
+class AirplanesAPI(BaseAPiClient):
 
     def __init__(self) -> None:
-        self.openstreetmap_url = 'https://nominatim.openstreetmap.org/search'
-        self.opensky_url = 'https://opensky-network.org/api/states/all?'
-        self.aeroplanes = None
+        self._nominatim_url = 'https://nominatim.openstreetmap.org/search'
+        self._opensky_url = 'https://opensky-network.org/api/states/all?'
 
-    def get_aeroplanes(self, country: str) -> None:
-        #Headers с user-agent - обязательный параметр при запросе к nominatim.openstreetmap.
-        #Вы можете использовать любое название вместо test-app/1.0, например просто test-app.
-        headers_nominatim = {
-            'User-Agent': 'test-app/1.0',
-        }
-
-        #Указываем параметры: в каком формате возвращать данные и максимальную длину списка стран в ответе.
-        params_nominatim = {
+    def _get_country_bbox(self, country: str) -> list:
+        """"""
+        params = {
             'country': country,
             'format': 'json',
             'limit': 1,
         }
+        headers = {'User-Agent': 'airplane-tracker-test-app'}
+        data = self._make_request(self._nominatim_url, params=params, headers=headers)
 
-        response = get(url=self.openstreetmap_url, params=params_nominatim, headers=headers_nominatim)
+        return data[0]['boundingbox']
 
-        data = response.json()
-
-        #Пример ответа от nominatim.openstreetmap можно посмотреть в задании курсовой.
-        geo_coordinates = data[0].get('boundingbox')
-
-        #Параметры для фильтрации самолетов по их географическим координатам.
+    def _get_airplanes_states(self, bbox: list) -> dict:
+        """"""
         params = {
-            'lamin': geo_coordinates[0],
-            'lamax': geo_coordinates[1],
-            'lomin': geo_coordinates[2],
-            'lomax': geo_coordinates[3],
+            "lamin": bbox[0],
+            "lamax": bbox[1],
+            "lomin": bbox[2],
+            "lomax": bbox[3]
         }
+        return self._make_request(self._opensky_url, params=params)
 
-        response = get(url=self.opensky_url, params=params)
+    def get_airplanes(self, country: str) -> list:
+        """"""
+        bbox = self._get_country_bbox(country)
+        states_data = self._get_airplanes_states(bbox)
+        return states_data.get("states", [])
 
-        #Пример ответа от opensky-network можно посмотреть в задании курсовой.
-        self.aeroplanes = response.json()
 
-api = APIAdapter()
-api.get_aeroplanes('Canada')
+if __name__ == '__main__':
+    api = AirplanesAPI()
+    list_ = api.get_airplanes('Russia')
+    pprint(list_)
