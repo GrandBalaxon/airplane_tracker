@@ -8,35 +8,37 @@ class Airplane:
     """Представляет информацию о воздушном судне.
 
     Attributes:
-        callsign (str): Позывной самолёта (например, "UAL1621").
+        aircraft_id (str): Уникальный идентификатор борта (например, "a50e93").
         country (str): Страна регистрации воздушного судна.
         velocity (float): Скорость полёта в м/с.
         geo_altitude (float): Геометрическая высота в метрах.
     """
 
-    __slots__ = ["callsign", "country", "on_ground", "velocity", "geo_altitude"]
+    __slots__ = ["aircraft_id", "country", "on_ground", "velocity", "geo_altitude"]
 
     def __init__(
-        self, callsign: str, country: str, on_ground: bool, velocity: float, geo_altitude: Optional[float]
+        self,
+        aircraft_id: str,
+        country: str,
+        on_ground: bool,
+        velocity: float,
+        geo_altitude: Optional[float],
     ) -> None:
-        self.callsign = callsign
+        self.aircraft_id = self._validate_aircraft_id(aircraft_id)
         self.country = country
         self.on_ground = on_ground
         self.velocity = velocity
         self.geo_altitude = geo_altitude
 
     def __str__(self):
-        return f"{self.callsign} (Страна: {self.country}, Скорость: {self.velocity}, Высота: {self.geo_altitude})"
+        return f"id[{self.aircraft_id}] (Страна: {self.country}, В полёте: {not self.on_ground}, Скорость: {self.velocity}, Высота: {self.geo_altitude})"
 
     @staticmethod
-    def _validate_callsign(value: str) -> Optional[str]:
-        """Приватный метод для валидации позывного рейса."""
+    def _validate_aircraft_id(value: str) -> Optional[str]:
+        """Приватный метод для валидации идентификатор борта."""
         if not isinstance(value, str):
-            logger.error(f"Позывной борта должен быть строкой, получено {type(value)}")
-            return None
-        elif value.strip() == "":
-            logger.error(f"Позывной борта должен быть не пустой строкой.")
-            return None
+            logger.error(f"Идентификатор борта должен быть строкой, получено {type(value)}")
+            raise ValueError
         else:
             return value.strip()
 
@@ -72,15 +74,15 @@ class Airplane:
         result_list = []
 
         for state in states_list:
-            callsign = cls._validate_callsign(state[1])
+            aircraft_id = state[0]
             country = state[2]
             on_ground = state[8]
             velocity = state[9]
             geo_altitude = state[13]
 
-            if callsign and country and on_ground and velocity and geo_altitude:
-                airplane = cls(callsign, country, on_ground, velocity, geo_altitude)
+            if aircraft_id and country and velocity:
+                airplane = cls(aircraft_id, country, on_ground, velocity, geo_altitude)
 
-            result_list.append(airplane)
+                result_list.append(airplane)
 
         return result_list
