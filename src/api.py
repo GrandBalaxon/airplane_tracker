@@ -1,16 +1,17 @@
-from pprint import pprint
+from .base_api import BaseAPIClient
+import logging
 
-from base_api import BaseAPiClient
+logger = logging.getLogger("api")
 
 
-class AirplanesAPI(BaseAPiClient):
+class AirplanesAPI(BaseAPIClient):
 
     def __init__(self) -> None:
         self._nominatim_url = 'https://nominatim.openstreetmap.org/search'
         self._opensky_url = 'https://opensky-network.org/api/states/all?'
 
     def _get_country_bbox(self, country: str) -> list:
-        """"""
+        """Приватный метод: получает bounding box страны через Nominatim."""
         params = {
             'country': country,
             'format': 'json',
@@ -19,26 +20,31 @@ class AirplanesAPI(BaseAPiClient):
         headers = {'User-Agent': 'airplane-tracker-test-app'}
         data = self._make_request(self._nominatim_url, params=params, headers=headers)
 
-        return data[0]['boundingbox']
+        bbox = data[0]['boundingbox']
+        logger.info(f"Данные о bbox получены: {bbox}")
+
+        return bbox
 
     def _get_airplanes_states(self, bbox: list) -> dict:
-        """"""
+        """Приватный метод: получает состояния самолётов в заданном bounding box через OpenSky."""
         params = {
             "lamin": bbox[0],
             "lamax": bbox[1],
             "lomin": bbox[2],
             "lomax": bbox[3]
         }
-        return self._make_request(self._opensky_url, params=params)
+        data = self._make_request(self._opensky_url, params=params)
+        logger.info("Данные успешно загружены.")
+
+        return data
 
     def get_airplanes(self, country: str) -> list:
-        """"""
+        """Метод, что возвращает список самолётов и их данные для указанной страны."""
+        logger.info(f"Попытка получить данные о воздушных судах над '{country}'.")
         bbox = self._get_country_bbox(country)
         states_data = self._get_airplanes_states(bbox)
-        return states_data.get("states", [])
 
+        result = states_data.get("states", [])
+        logger.info(f"")
 
-if __name__ == '__main__':
-    api = AirplanesAPI()
-    list_ = api.get_airplanes('Russia')
-    pprint(list_)
+        return result
