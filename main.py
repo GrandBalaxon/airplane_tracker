@@ -1,19 +1,18 @@
-from pprint import pprint
-
+from src.airplane import Airplane
 from src.api import AirplanesAPI
 
 
 if __name__ == '__main__':
     api = AirplanesAPI()
     list_ = api.get_airplanes('Japan')
-    pprint(list_)
 
-    # # Преобразование набора данных в список объектов
-    # aeroplanes = Aeroplane.cast_to_object_list(aeroplanes)
-    #
-    # # Пример работы контструктора класса с одним самолетом
-    # aeroplane = Aeroplane("UAL1621", "United States", 268.79, 10203.18)
-    #
+    # Преобразование набора данных в список объектов
+    airplanes = Airplane.cast_to_object_list(list_)
+    print(*airplanes, sep="\n")
+
+    # Пример работы конструктора класса с одним самолетом
+    aeroplane = Airplane("UAL1621", "United States", 100, 10203.18)
+
     # # Сохранение информации в файл
     # json_saver = JSONSaver()
     # json_saver.add_aeroplane(vacancy)
