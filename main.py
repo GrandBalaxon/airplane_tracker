@@ -5,7 +5,7 @@ from src.api import AirplanesAPI
 
 if __name__ == '__main__':
     api = AirplanesAPI()
-    list_ = api.get_airplanes('Russia')
+    list_ = api.get_airplanes('Japan')
     pprint(list_)
 
     # # Преобразование набора данных в список объектов

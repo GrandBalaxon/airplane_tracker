@@ -1,7 +1,7 @@
+import logging
 from abc import ABC, abstractmethod
 
 import requests
-import logging
 
 logger = logging.getLogger("base_api")
 
@@ -18,10 +18,8 @@ class BaseAPIClient(ABC):
         """
         response = requests.get(url, params=params, headers=headers)
         if response.status_code != 200:
-            logger.error(f"Ошибка подключения: {response.status_code} - {response.text}")
             raise Exception(f"Ошибка подключения: {response.status_code} - {response.text}")
 
-        logger.info(f"Успешный GET-запрос к ресурсу '{url}'.")
         return response.json()
 
     @abstractmethod
