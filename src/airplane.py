@@ -133,27 +133,37 @@ class Airplane:
         """Метод для логического сравнения 'меньше чем'."""
         if not isinstance(other, Airplane):
             raise TypeError(f"Ошибка: сравнение с некорректным типом {type(other)}.")
-        return self.geo_altitude < other.geo_altitude
+        elif self.geo_altitude == other.geo_altitude:
+            return self.velocity < other.velocity
+        else:
+            return self.geo_altitude < other.geo_altitude
 
     def __le__(self, other: 'Airplane') -> bool:
         """Метод для логического сравнения 'меньше или равно'."""
         if not isinstance(other, Airplane):
             raise TypeError(f"Ошибка: сравнение с некорректным типом {type(other)}.")
-        return self.geo_altitude <= other.geo_altitude
+        elif self.geo_altitude == other.geo_altitude:
+            return self.velocity < other.velocity
+        else:
+            return self.geo_altitude < other.geo_altitude
 
     def __gt__(self, other: 'Airplane') -> bool:
         """Метод для логического сравнения 'больше чем'."""
         if not isinstance(other, Airplane):
             raise TypeError(f"Ошибка: сравнение с некорректным типом {type(other)}.")
-
-        return self.geo_altitude > other.geo_altitude
+        elif self.geo_altitude == other.geo_altitude:
+            return self.velocity > other.velocity
+        else:
+            return self.geo_altitude > other.geo_altitude
 
     def __ge__(self, other: 'Airplane') -> bool:
         """Метод для логического сравнения 'больше или равно'."""
         if not isinstance(other, Airplane):
             raise TypeError(f"Ошибка: сравнение с некорректным типом {type(other)}.")
-
-        return self.geo_altitude >= other.geo_altitude
+        elif self.geo_altitude == other.geo_altitude:
+            return self.velocity > other.velocity
+        else:
+            return self.geo_altitude > other.geo_altitude
 
     @classmethod
     def cast_to_object_list(cls, states_list: list[list[Any]]) -> list[Airplane]:
