@@ -4,7 +4,7 @@ from src.api import AirplanesAPI
 
 if __name__ == '__main__':
     api = AirplanesAPI()
-    list_ = api.get_airplanes('Russia')
+    list_ = api.get_airplanes('Canada')
     # print(*list_, sep="\n")
 
     # Преобразование набора данных в список объектов
@@ -14,7 +14,7 @@ if __name__ == '__main__':
     # Пример работы конструктора класса с одним самолетом
     aeroplane = Airplane("a612a6", "United States", False,100, 10203.18)
 
-    # # Сохранение информации в файл
+    # # Сохранение информации в файл4
     # json_saver = JSONSaver()
     # json_saver.add_aeroplane(vacancy)
     # json_saver.delete_aeroplane(vacancy)

@@ -8,10 +8,12 @@ class Airplane:
     """Представляет информацию о воздушном судне.
 
     Attributes:
-        aircraft_id (str): Уникальный идентификатор борта (например, "a50e93").
+        aircraft_id (str): Уникальный идентификационный номер самолета по ИКАО, отображаемый в шестнадцатеричном
+            формате, как он установлен в транспондере самолета (может быть неверным, пример номера "a50e93").
         country (str): Страна регистрации воздушного судна.
-        velocity (float): Скорость полёта в м/с.
-        geo_altitude (float): Геометрическая высота в метрах.
+        on_ground (bool): Флаг нахождения самолёта на земле.
+        velocity (Optional[float]): Скорость полёта в м/с.
+        geo_altitude (Optional[float]): Геометрическая высота в метрах.
     """
 
     __slots__ = ["aircraft_id", "country", "on_ground", "velocity", "geo_altitude"]
@@ -21,52 +23,102 @@ class Airplane:
         aircraft_id: str,
         country: str,
         on_ground: bool,
-        velocity: float,
+        velocity: Optional[float],
         geo_altitude: Optional[float],
     ) -> None:
+
         self.aircraft_id = self._validate_aircraft_id(aircraft_id)
-        self.country = country
-        self.on_ground = on_ground
-        self.velocity = velocity
-        self.geo_altitude = geo_altitude
+        self.country = self._validate_country(country)
+        self.on_ground = self._validate_on_ground_status(on_ground)
+        self.geo_altitude = self._validate_altitude(geo_altitude)
+        self.velocity = self._validate_velocity(velocity)
 
     def __str__(self):
-        return f"id[{self.aircraft_id}] (Страна: {self.country}, В полёте: {not self.on_ground}, Скорость: {self.velocity}, Высота: {self.geo_altitude})"
+        """Переопределенный метод для отображения str экземпляра класса."""
+        velocity_str = f"{self.velocity} м/c" if self.velocity else "0"
+        altitude_str = f"{self.geo_altitude} м" if self.geo_altitude else "на земле"
+        return f"Борт {self.aircraft_id} - {self.country} (Скорость: {velocity_str}, Высота: {altitude_str})"
 
     @staticmethod
-    def _validate_aircraft_id(value: str) -> Optional[str]:
+    def _validate_aircraft_id(value: str | int) -> str:
         """Приватный метод для валидации идентификатор борта."""
+        if not isinstance(value, (str, int)):
+            raise ValueError(f"Идентификатор борта должен быть строкой, получено {type(value)}")
+        else:
+            if isinstance(value, int):
+                return str(value)
+            else:
+                return value.strip()
+
+    @staticmethod
+    def _validate_country(value: str) -> str:
+        """Приватный метод для валидации страны регистрации самолёта."""
         if not isinstance(value, str):
-            logger.error(f"Идентификатор борта должен быть строкой, получено {type(value)}")
-            raise ValueError
+            logger.warning(f"Название страны должно быть строкой, получено {value} класса {type(value)}")
+            return ""
         else:
             return value.strip()
 
-    def _validate_altitude(self, value: float | int) -> Optional[float]:
-        """Валидация высоты: должна быть числом в разумных пределах (например, -1000 … 30000 м)."""
-        if not isinstance(value, (int, float)):
-            logger.error(f"Высота должна быть числом, получено {type(value)}")
-            return None
-        if value < 0 or value > 20000:
-            logger.warning(f"Высота {value} м выходит за пределы допустимого диапазона (-1000–30000 м)")
-            return None
-        elif self.on_ground and not value:
-            logger.warning(
-                f"Самолёт {self.callsign, self.country} стоит на земле и при этом имеет не корректное значение высоты."
-            )
-            return None
-        return float(value)
-
-    def _validate_velocity(self, value: float | int) -> Optional[float]:
-        """Приватный метод для валидации скорости."""
-        if not isinstance(value, (int, float)):
-            logger.error(f"Скорость должна быть числом, получено {type(value)}")
-            return None
-        elif value < 90 or value > 1000:
-            logger.warning(f"Скорость {value} м/с выходит за пределы допустимого диапазона (90-1000 м/с)")
-            return None
+    @staticmethod
+    def _validate_on_ground_status(value: bool | str) -> bool:
+        """Приватный метод для валидации атрибута on_ground."""
+        if isinstance(value, str):
+            value = value.lower().strip()
+            if value == "true":
+                return True
+            elif value == "false":
+                return False
+            else:
+                info = f"Флаг 'on_ground' должен быть True/False, получено: {value}"
+                raise ValueError(info)
+        elif isinstance(value, bool):
+            return value
         else:
-            return float(value)
+            info = f"Флаг 'on_ground' должен быть True/False, получено: {value} класса {type(value)}."
+            raise ValueError(info)
+
+    def _validate_altitude(self, value: Optional[float | int]) -> Optional[float]:
+        """Приватный метод для валидация высоты (должна быть числом в разумных пределах от 0 до 20000 м.)"""
+
+        if isinstance(value, (int, float)):
+            if value < 0 or value > 40000:
+                info = f"Борт {self.aircraft_id} - {self.country}: высота {value} м выходит за пределы допустимого диапазона (0–40000 м)"
+                raise ValueError(info)
+            else:
+                return float(value)
+
+        elif value is None:
+            if not self.on_ground and value:
+                info = f"Борт {self.aircraft_id} - {self.country} сейчас на земле, но имеет знач. высоты {value}."
+                logger.debug(f"Значение {value}, тип {type(value)}")
+                raise ValueError(info)
+            else:
+                return 0
+
+        else:
+            info = f"Высота должна быть числом или None, получено {type(value)}"
+            raise TypeError(info)
+
+    def _validate_velocity(self, value: float | int) -> float:
+        """Приватный метод для валидации скорости."""
+
+        if isinstance(value, (int, float)):
+            if value < 0 or value > 1000:
+                info = f"Борт {self.aircraft_id} - {self.country}: Скорость {value} м/с за пределами диапазона (0-1000 м/с)"
+                raise ValueError(info)
+            else:
+                return float(value)
+
+        elif value is None:
+            if not self.on_ground:
+                info = f"Самолёт id[{self.aircraft_id}] не на земле, но не имеет скорости полёта."
+                raise ValueError(info)
+            else:
+                return 0
+
+        else:
+            info = f"Скорость должна быть числом или None, получено {type(value)}"
+            raise TypeError(info)
 
     @classmethod
     def cast_to_object_list(cls, states_list: list[list[Any]]) -> list[Airplane]:
@@ -80,9 +132,13 @@ class Airplane:
             velocity = state[9]
             geo_altitude = state[13]
 
-            if aircraft_id and country and velocity:
-                airplane = cls(aircraft_id, country, on_ground, velocity, geo_altitude)
+            try:
+                aircraft = Airplane(aircraft_id, country, on_ground, velocity, geo_altitude)
+            except Exception as e:
+                logger.error(e)
+                continue
+            else:
+                result_list.append(aircraft)
 
-                result_list.append(airplane)
-
+        logger.info(f"Данных валидировано: {len(result_list)}/{len(states_list)}.")
         return result_list
