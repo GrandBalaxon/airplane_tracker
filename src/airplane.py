@@ -33,6 +33,10 @@ class Airplane:
         self.geo_altitude = self._validate_altitude(geo_altitude)
         self.velocity = self._validate_velocity(velocity)
 
+    def __repr__(self) -> str:
+        return (f"Airplane (icao_id = {self.aircraft_id}, country = {self.country}, "
+                f"on_ground = {self.on_ground}, velocity = {self.velocity}, geo_altitude = {self.geo_altitude})")
+
     def __str__(self) -> str:
         return (f"Airplane (icao_id = {self.aircraft_id}, country = {self.country}, "
                 f"on_ground = {self.on_ground}, velocity = {self.velocity}, geo_altitude = {self.geo_altitude})")
