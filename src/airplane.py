@@ -5,7 +5,7 @@ logger = logging.getLogger("airplane")
 
 
 class Airplane:
-    """Представляет информацию о воздушном судне.
+    """Класс представляющий информацию о воздушном судне.
 
     Attributes:
         aircraft_id (str): Уникальный идентификационный номер самолета по ИКАО, отображаемый в шестнадцатеричном
@@ -33,11 +33,15 @@ class Airplane:
         self.geo_altitude = self._validate_altitude(geo_altitude)
         self.velocity = self._validate_velocity(velocity)
 
-    def __str__(self):
-        """Переопределенный метод для отображения str экземпляра класса."""
-        velocity_str = f"{self.velocity} м/c" if self.velocity else "0"
-        altitude_str = f"{self.geo_altitude} м" if self.geo_altitude else "на земле"
-        return f"Борт {self.aircraft_id} - {self.country} (Скорость: {velocity_str}, Высота: {altitude_str})"
+    def __str__(self) -> str:
+        return (f"Airplane (icao_id = {self.aircraft_id}, country = {self.country}, "
+                f"on_ground = {self.on_ground}, velocity = {self.velocity}, geo_altitude = {self.geo_altitude})")
+
+    # def __str__(self) -> str:
+    #     """Переопределенный метод для отображения str экземпляра класса."""
+    #     velocity_str = f"{self.velocity} м/c" if self.velocity else "0"
+    #     altitude_str = f"{self.geo_altitude} м" if self.geo_altitude else "на земле"
+    #     return f"Борт {self.aircraft_id} - {self.country} (Скорость: {velocity_str}, Высота: {altitude_str})"
 
     @staticmethod
     def _validate_aircraft_id(value: str | int) -> str:
@@ -46,6 +50,7 @@ class Airplane:
             raise ValueError(f"Идентификатор борта должен быть строкой, получено {type(value)}")
         else:
             if isinstance(value, int):
+                logger.debug("Получено и обработано численное значение ID самолёта.")
                 return str(value)
             else:
                 return value.strip()
@@ -81,8 +86,8 @@ class Airplane:
         """Приватный метод для валидация высоты (должна быть числом в разумных пределах от 0 до 20000 м.)"""
 
         if isinstance(value, (int, float)):
-            if value < 0 or value > 40000:
-                info = f"Борт {self.aircraft_id} - {self.country}: высота {value} м выходит за пределы допустимого диапазона (0–40000 м)"
+            if value < -400 or value > 40000:
+                info = f"Борт {self.aircraft_id} - {self.country}: высота {value} м выходит за пределы допустимого диапазона (-400 – 40000 м)"
                 raise ValueError(info)
             else:
                 return float(value)
@@ -120,6 +125,32 @@ class Airplane:
             info = f"Скорость должна быть числом или None, получено {type(value)}"
             raise TypeError(info)
 
+    def __lt__(self, other: 'Airplane') -> bool:
+        """Метод для логического сравнения 'меньше чем'."""
+        if not isinstance(other, Airplane):
+            raise TypeError(f"Ошибка: сравнение с некорректным типом {type(other)}.")
+        return self.geo_altitude < other.geo_altitude
+
+    def __le__(self, other: 'Airplane') -> bool:
+        """Метод для логического сравнения 'меньше или равно'."""
+        if not isinstance(other, Airplane):
+            raise TypeError(f"Ошибка: сравнение с некорректным типом {type(other)}.")
+        return self.geo_altitude <= other.geo_altitude
+
+    def __gt__(self, other: 'Airplane') -> bool:
+        """Метод для логического сравнения 'больше чем'."""
+        if not isinstance(other, Airplane):
+            raise TypeError(f"Ошибка: сравнение с некорректным типом {type(other)}.")
+
+        return self.geo_altitude > other.geo_altitude
+
+    def __ge__(self, other: 'Airplane') -> bool:
+        """Метод для логического сравнения 'больше или равно'."""
+        if not isinstance(other, Airplane):
+            raise TypeError(f"Ошибка: сравнение с некорректным типом {type(other)}.")
+
+        return self.geo_altitude >= other.geo_altitude
+
     @classmethod
     def cast_to_object_list(cls, states_list: list[list[Any]]) -> list[Airplane]:
         """Метод для преобразования списка со списками данных о самолётах в список объектов класса Airplane."""
@@ -135,6 +166,7 @@ class Airplane:
             try:
                 aircraft = Airplane(aircraft_id, country, on_ground, velocity, geo_altitude)
             except Exception as e:
+                logger.debug(f"Не прошел проверку: {state}")
                 logger.error(e)
                 continue
             else:
