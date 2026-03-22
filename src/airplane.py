@@ -34,12 +34,16 @@ class Airplane:
         self.velocity = self._validate_velocity(velocity)
 
     def __repr__(self) -> str:
-        return (f"Airplane (icao_id = {self.aircraft_id}, country = {self.country}, "
-                f"on_ground = {self.on_ground}, velocity = {self.velocity}, geo_altitude = {self.geo_altitude})")
+        return (
+            f"Airplane (icao_id = {self.aircraft_id}, country = {self.country}, "
+            f"on_ground = {self.on_ground}, velocity = {self.velocity}, geo_altitude = {self.geo_altitude})"
+        )
 
     def __str__(self) -> str:
-        return (f"Airplane (icao_id = {self.aircraft_id}, country = {self.country}, "
-                f"on_ground = {self.on_ground}, velocity = {self.velocity}, geo_altitude = {self.geo_altitude})")
+        return (
+            f"Airplane (icao_id = {self.aircraft_id}, country = {self.country}, "
+            f"on_ground = {self.on_ground}, velocity = {self.velocity}, geo_altitude = {self.geo_altitude})"
+        )
 
     # def __str__(self) -> str:
     #     """Переопределенный метод для отображения str экземпляра класса."""
@@ -129,7 +133,7 @@ class Airplane:
             info = f"Скорость должна быть числом или None, получено {type(value)}"
             raise TypeError(info)
 
-    def __lt__(self, other: 'Airplane') -> bool:
+    def __lt__(self, other: "Airplane") -> bool:
         """Метод для логического сравнения 'меньше чем'."""
         if not isinstance(other, Airplane):
             raise TypeError(f"Ошибка: сравнение с некорректным типом {type(other)}.")
@@ -138,7 +142,7 @@ class Airplane:
         else:
             return self.geo_altitude < other.geo_altitude
 
-    def __le__(self, other: 'Airplane') -> bool:
+    def __le__(self, other: "Airplane") -> bool:
         """Метод для логического сравнения 'меньше или равно'."""
         if not isinstance(other, Airplane):
             raise TypeError(f"Ошибка: сравнение с некорректным типом {type(other)}.")
@@ -147,7 +151,7 @@ class Airplane:
         else:
             return self.geo_altitude < other.geo_altitude
 
-    def __gt__(self, other: 'Airplane') -> bool:
+    def __gt__(self, other: "Airplane") -> bool:
         """Метод для логического сравнения 'больше чем'."""
         if not isinstance(other, Airplane):
             raise TypeError(f"Ошибка: сравнение с некорректным типом {type(other)}.")
@@ -156,7 +160,7 @@ class Airplane:
         else:
             return self.geo_altitude > other.geo_altitude
 
-    def __ge__(self, other: 'Airplane') -> bool:
+    def __ge__(self, other: "Airplane") -> bool:
         """Метод для логического сравнения 'больше или равно'."""
         if not isinstance(other, Airplane):
             raise TypeError(f"Ошибка: сравнение с некорректным типом {type(other)}.")

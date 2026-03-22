@@ -1,12 +1,12 @@
 from src.airplane import Airplane
 from src.api import AirplanesAPI
-
+from src.json_saver import JSONSaver
 
 if __name__ == '__main__':
     # api = AirplanesAPI()
     # list_ = api.get_airplanes('Ukraine')
     # # print(*list_, sep="\n")
-    #
+
     # # Преобразование набора данных в список объектов
     # airplanes = Airplane.cast_to_object_list(list_)
     # print(*sorted(airplanes), sep="\n")
@@ -15,14 +15,13 @@ if __name__ == '__main__':
     aeroplane_1 = Airplane("a612a6", "United States", False,100, 10203.18)
     aeroplane_2 = Airplane("a612a7", "United States", False, 100, 9203.18)
 
-    list_ = [aeroplane_1, aeroplane_2]
-    print(*sorted(list_), sep='\n')
+    # Сохранение информации в файл4
+    json_saver = JSONSaver()
 
-    # # Сохранение информации в файл4
-    # json_saver = JSONSaver()
-    # json_saver.add_aeroplane(vacancy)
-    # json_saver.delete_aeroplane(vacancy)
-    #
+    json_saver.add_airplane(aeroplane_1)
+    json_saver.add_airplane(aeroplane_2)
+    json_saver.delete_airplane(aeroplane_1)
+
     # # Функция для взаимодействия с пользователем
     # def user_interaction():
     #     country = input("Введите название страны: ")
