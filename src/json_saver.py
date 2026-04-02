@@ -1,12 +1,13 @@
 import json
 import logging
+from pathlib import Path
 
 from src.airplane import Airplane
 from src.base_saver import BaseFileSaver
 from src.utils import initialize_json_file
-from pathlib import Path
 
 logger = logging.getLogger("json_saver")
+
 
 class JSONSaver(BaseFileSaver):
     """Класс для сохранения информации о самолётах в JSON-файл.
@@ -32,7 +33,7 @@ class JSONSaver(BaseFileSaver):
                 "country": airplane.country,
                 "on_ground": airplane.on_ground,
                 "geo_altitude": airplane.geo_altitude,
-                "velocity": airplane.velocity
+                "velocity": airplane.velocity,
             }
             with open(self._file_path, mode="r") as f:
                 data = json.load(f)
@@ -48,10 +49,6 @@ class JSONSaver(BaseFileSaver):
         except Exception as e:
             logger.error(f"Возникла ошибка: {e}")
             raise
-
-    def get_airplane(self, airplane_id: str) -> "Airplane":
-        """Метод получения информации о самолёте из JSON-файла."""
-        pass
 
     def delete_airplane(self, airplane: "Airplane | str") -> None:
         """Метод удаления информации о самолёте из JSON-файла."""
@@ -78,7 +75,27 @@ class JSONSaver(BaseFileSaver):
             logger.error(f"Возникла ошибка: {e}")
             raise
 
+    def get_airplane(self, airplane_id: str) -> "Airplane | None":
+        """Метод получения информации о самолёте из JSON-файла."""
+        try:
+            if not isinstance(airplane_id, str):
+                logger.warning(f"Неверный формат ID самолёта: {type(airplane_id)}.")
+            else:
+                with open(self._file_path, mode="r") as f:
+                    data: dict = json.load(f)
+                airplane_data = data.get(airplane_id)
 
-if __name__ == '__main__':
+                if airplane_data:
+                    logger.info(f"Возвращение данных о борте {airplane_id} из JSON-файла.")
+                    return Airplane(aircraft_id=airplane_id, **airplane_data)
+                else:
+                    logger.warning(f"Данных о борте {airplane_id} не найдено в JSON-файле.")
+
+        except Exception as e:
+            logger.error(f"Возникла ошибка: {e}")
+            raise
+
+
+if __name__ == "__main__":
     uwu = JSONSaver("uwu.json")
     print(uwu._file_path)

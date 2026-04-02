@@ -24,11 +24,10 @@ class BaseFileSaver(ABC):
         pass
 
     @abstractmethod
-    def get_airplane(self, airplane_id: str) -> None:
-        """Абстрактный метод получения информации о самолёте из файла."""
-        pass
-
-    @abstractmethod
     def delete_airplane(self, airplane: "Airplane") -> None:
         """Абстрактный метод удаления информации о самолёте из файла."""
+        pass
+
+    def get_airplane(self, airplane_id: str) -> "Airplane":
+        """Абстрактный метод получения информации о самолёте из файла."""
         pass

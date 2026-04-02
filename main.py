@@ -23,6 +23,8 @@ if __name__ == '__main__':
     json_saver.delete_airplane(aeroplane_1)
     json_saver.delete_airplane("a851")
 
+    aeroplane_3 = json_saver.get_airplane("a612a7")
+
     # # Функция для взаимодействия с пользователем
     # def user_interaction():
     #     country = input("Введите название страны: ")
