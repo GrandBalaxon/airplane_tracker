@@ -26,25 +26,28 @@ class JSONSaver(BaseFileSaver):
 
     def add_airplane(self, airplane: "Airplane") -> None:
         """Метод добавления информации о самолёте в JSON-файл."""
-        id_key = airplane.airplane_id
-        airplane_data = {
-            "country": airplane.country,
-            "on_ground": airplane.on_ground,
-            "geo_altitude": airplane.geo_altitude,
-            "velocity": airplane.velocity
-        }
+        try:
+            id_key = airplane.airplane_id
+            airplane_data = {
+                "country": airplane.country,
+                "on_ground": airplane.on_ground,
+                "geo_altitude": airplane.geo_altitude,
+                "velocity": airplane.velocity
+            }
+            with open(self._file_path, mode="r") as f:
+                data = json.load(f)
 
-        with open(self._file_path, mode="r") as f:
-            data = json.load(f)
+            if id_key in data:
+                logger.info(f"Обновление информации о борте {id_key}.")
+            else:
+                logger.info(f"Добавлена информация о борте {id_key}")
+            data[id_key] = airplane_data
 
-        if id_key in data:
-            logger.info(f"Обновление информации о борте {id_key}.")
-        else:
-            logger.info(f"Добавлена информация о борте {id_key}")
-        data[id_key] = airplane_data
-
-        with open(self._file_path, mode="w") as f:
-            json.dump(data, f, indent=4)
+            with open(self._file_path, mode="w") as f:
+                json.dump(data, f, indent=4)
+        except Exception as e:
+            logger.error(f"Возникла ошибка: {e}")
+            raise
 
     def get_airplane(self, airplane_id: str) -> "Airplane":
         """Метод получения информации о самолёте из JSON-файла."""
@@ -52,7 +55,28 @@ class JSONSaver(BaseFileSaver):
 
     def delete_airplane(self, airplane: "Airplane | str") -> None:
         """Метод удаления информации о самолёте из JSON-файла."""
-        pass
+        try:
+            if isinstance(airplane, Airplane):
+                id_key = airplane.airplane_id
+            elif isinstance(airplane, str):
+                id_key = airplane
+            else:
+                raise TypeError(f"Неверный формат {type(airplane)}, ожидается объект класса Airplane или типа str.")
+
+            with open(self._file_path, mode="r") as f:
+                data = json.load(f)
+
+            if id_key in data:
+                logger.info(f"Удаление информации о борте {id_key}.")
+                del data[id_key]
+                with open(self._file_path, mode="w") as f:
+                    json.dump(data, f, indent=4)
+            else:
+                logger.info(f"Информация о борте {id_key} не найдена в JSON-файле.")
+
+        except Exception as e:
+            logger.error(f"Возникла ошибка: {e}")
+            raise
 
 
 if __name__ == '__main__':

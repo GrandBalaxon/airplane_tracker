@@ -21,6 +21,7 @@ if __name__ == '__main__':
     json_saver.add_airplane(aeroplane_1)
     json_saver.add_airplane(aeroplane_2)
     json_saver.delete_airplane(aeroplane_1)
+    json_saver.delete_airplane("a851")
 
     # # Функция для взаимодействия с пользователем
     # def user_interaction():
