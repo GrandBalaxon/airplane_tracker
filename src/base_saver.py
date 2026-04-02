@@ -13,7 +13,7 @@ class BaseFileSaver(ABC):
 
     def _get_path(self) -> Path:
         """Метод для получения PATH к рабочему файлу."""
-        if self.__class__._file_extension in self._file_name:
+        if self._file_name.endswith(self.__class__._file_extension):
             return Path(__file__).parent.parent / "data" / self._file_name
         else:
             return Path(__file__).parent.parent / "data" / f"{self._file_name}{self.__class__._file_extension}"
@@ -24,7 +24,7 @@ class BaseFileSaver(ABC):
         pass
 
     @abstractmethod
-    def get_airplane(self) -> None:
+    def get_airplane(self, airplane_id: str) -> None:
         """Абстрактный метод получения информации о самолёте из файла."""
         pass
 
