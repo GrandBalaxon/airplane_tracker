@@ -1,5 +1,6 @@
 from src.airplane import Airplane
 from src.api import AirplanesAPI
+from src.csv_saver import CSVSaver
 from src.json_saver import JSONSaver
 
 if __name__ == '__main__':
@@ -15,7 +16,7 @@ if __name__ == '__main__':
     aeroplane_1 = Airplane("a612a6", "United States", False,100, 10203.18)
     aeroplane_2 = Airplane("a612a7", "United States", False, 100, 9203.18)
 
-    # Сохранение информации в файл4
+    # Сохранение информации в файл JSON
     json_saver = JSONSaver()
 
     json_saver.add_airplane(aeroplane_1)
@@ -24,6 +25,16 @@ if __name__ == '__main__':
     json_saver.delete_airplane("a851")
 
     aeroplane_3 = json_saver.get_airplane("a612a7")
+
+    # Сохранение информации в файл CSV
+    csv_saver = CSVSaver()
+
+    csv_saver.add_airplane(aeroplane_1)
+    csv_saver.add_airplane(aeroplane_2)
+    csv_saver.add_airplane(aeroplane_3)
+    csv_saver.delete_airplane(aeroplane_1)
+
+    aeroplane_4 = csv_saver.get_airplane("a612a7")
 
     # # Функция для взаимодействия с пользователем
     # def user_interaction():

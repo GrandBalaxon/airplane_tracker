@@ -4,7 +4,7 @@ from pathlib import Path
 
 from src.airplane import Airplane
 from src.base_saver import BaseFileSaver
-from src.utils import initialize_json_file
+from src.utils import initialize_file
 
 logger = logging.getLogger("json_saver")
 
@@ -23,7 +23,7 @@ class JSONSaver(BaseFileSaver):
         self._file_name = file_name
         self._file_path: Path = self._get_path()
 
-        initialize_json_file(self._file_path)
+        initialize_file(self._file_path)
 
     def add_airplane(self, airplane: "Airplane") -> None:
         """Метод добавления информации о самолёте в JSON-файл."""
