@@ -175,5 +175,7 @@ cython_debug/
 
 *_log.json
 
-.logs/
-.data/
+logs/
+data/
+*.csv
+*.json
