@@ -26,7 +26,7 @@ class CSVSaver(BaseFileSaver):
         self._initialize_file()
 
     def _write_airplanes_data_to_file(self) -> None:
-        """Приватный метод для внесения всех текущих данных из датасета в файл."""
+        """Приватный метод для внесения всех текущих данных из датасета в CSV-файл."""
         rows = []
         for airplane_id, data in self._airplanes_data.items():
             rows.append(
@@ -47,7 +47,7 @@ class CSVSaver(BaseFileSaver):
                 writer.writerow(row)
 
     def add_airplane(self, airplane: "Airplane") -> None:
-        """Абстрактный метод добавления информации о самолёте в файл."""
+        """Метод добавления информации о самолёте в CSV-файл."""
         try:
             if self._is_airplane_in_dataset(airplane):
                 logger.info(f"Данные о борте {airplane.airplane_id} уже записаны.")
@@ -61,19 +61,20 @@ class CSVSaver(BaseFileSaver):
             logger.error(f"Возникла ошибка: {e}")
             raise
 
-    def delete_airplane(self, airplane: "Airplane") -> None:
-        """Абстрактный метод удаления информации о самолёте из файла."""
+    def delete_airplane(self, airplane: "Airplane | str") -> None:
+        """Абстрактный метод удаления информации о самолёте из CSV-файла."""
         try:
+            id_key = airplane.airplane_id if isinstance(airplane, Airplane) else airplane
             if self._is_airplane_in_dataset(airplane):
-                logger.info(f"Данные о борте {airplane.airplane_id} найдены в файле.")
+                logger.info(f"Данные о борте {id_key} найдены в файле.")
 
                 self._delete_airplane_from_dataset(airplane)
                 self._write_airplanes_data_to_file()
 
-                logger.info(f"Данные о борте {airplane.airplane_id} удалены из файла.")
+                logger.info(f"Данные о борте {id_key} удалены из файла.")
 
             else:
-                logger.info(f"Данные о борте {airplane.airplane_id} не найдены в файле.")
+                logger.info(f"Данные о борте {id_key} не найдены в файле.")
 
         except Exception as e:
             logger.error(f"Возникла ошибка: {e}")

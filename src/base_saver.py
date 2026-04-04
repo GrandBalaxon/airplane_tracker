@@ -39,7 +39,7 @@ class BaseFileSaver(ABC):
             if self._file_path.suffix == ".json":
                 logger.debug("Идёт работа с JSON-файлом.")
                 with open(self._file_path, "r") as file:
-                    airplanes_data: dict = json.load(file)
+                    self._airplanes_data = json.load(file)
 
             # Если идёт работа с CSV-файлом
             if self._file_path.suffix == ".csv":
@@ -111,7 +111,8 @@ class BaseFileSaver(ABC):
         """
         try:
             if len(self._airplanes_data) == 0:
-                logger.info(f"Датасет/{self.__class__._file_extension}-файл пока что пуст.")
+                file_extension = self.__class__._file_extension[1:].upper()
+                logger.info(f"Датасет/{file_extension}-файл пока что пуст.")
                 return False
             else:
                 if isinstance(airplane, Airplane):

@@ -25,27 +25,21 @@ class JSONSaver(BaseFileSaver):
         self._airplanes_data = {}
         self._initialize_file()
 
+    def _write_airplanes_data_to_file(self) -> None:
+        """Приватный метод для внесения всех текущих данных из датасета в JSON-файл."""
+        with open(self._file_path, mode="w") as file:
+            json.dump(self._airplanes_data, file, indent=4)
+
     def add_airplane(self, airplane: "Airplane") -> None:
         """Метод добавления информации о самолёте в JSON-файл."""
         try:
-            id_key = airplane.airplane_id
-            airplane_data = {
-                "country": airplane.country,
-                "on_ground": airplane.on_ground,
-                "geo_altitude": airplane.geo_altitude,
-                "velocity": airplane.velocity,
-            }
-            with open(self._file_path, mode="r") as f:
-                data = json.load(f)
-
-            if id_key in data:
-                logger.info(f"Обновление информации о борте {id_key}.")
+            if self._is_airplane_in_dataset(airplane):
+                logger.info(f"Данные о борте {airplane.airplane_id} уже записаны.")
             else:
-                logger.info(f"Добавлена информация о борте {id_key}")
-            data[id_key] = airplane_data
+                self._add_airplane_to_dataset(airplane)
+                self._write_airplanes_data_to_file()
 
-            with open(self._file_path, mode="w") as f:
-                json.dump(data, f, indent=4)
+                logger.info(f"Данные о борте {airplane.airplane_id} записаны в файл.")
 
         except Exception as e:
             logger.error(f"Возникла ошибка: {e}")
@@ -54,23 +48,17 @@ class JSONSaver(BaseFileSaver):
     def delete_airplane(self, airplane: "Airplane | str") -> None:
         """Метод удаления информации о самолёте из JSON-файла."""
         try:
-            if isinstance(airplane, Airplane):
-                id_key = airplane.airplane_id
-            elif isinstance(airplane, str):
-                id_key = airplane
-            else:
-                raise TypeError(f"Неверный формат {type(airplane)}, ожидается объект класса Airplane или типа str.")
+            id_key = airplane.airplane_id if isinstance(airplane, Airplane) else airplane
+            if self._is_airplane_in_dataset(airplane):
+                logger.info(f"Данные о борте {id_key} найдены в файле.")
 
-            with open(self._file_path, mode="r") as f:
-                data = json.load(f)
+                self._delete_airplane_from_dataset(airplane)
+                self._write_airplanes_data_to_file()
 
-            if id_key in data:
-                logger.info(f"Удаление информации о борте {id_key}.")
-                del data[id_key]
-                with open(self._file_path, mode="w") as f:
-                    json.dump(data, f, indent=4)
+                logger.info(f"Данные о борте {id_key} удалены из файла.")
+
             else:
-                logger.info(f"Информация о борте {id_key} не найдена в JSON-файле.")
+                logger.info(f"Данные о борте {id_key} не найдены в файле.")
 
         except Exception as e:
             logger.error(f"Возникла ошибка: {e}")
@@ -87,13 +75,12 @@ class JSONSaver(BaseFileSaver):
             if not isinstance(airplane_id, str):
                 logger.warning(f"Неверный формат ID самолёта: {type(airplane_id)}.")
             else:
-                with open(self._file_path, mode="r") as f:
-                    data: dict = json.load(f)
-                airplane_data = data.get(airplane_id)
+                if self._is_airplane_in_dataset(airplane_id):
 
-                if airplane_data:
+                    airplane_data = self._airplanes_data.get(airplane_id)
                     logger.info(f"Возвращение данных о борте {airplane_id} из JSON-файла.")
                     return Airplane(aircraft_id=airplane_id, **airplane_data)
+
                 else:
                     logger.warning(f"Данных о борте {airplane_id} не найдено в JSON-файле.")
 
