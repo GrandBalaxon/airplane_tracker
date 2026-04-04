@@ -27,6 +27,11 @@ class BaseFileSaver(ABC):
         }
         self._airplanes_data[id_key] = airplane_data
 
+    def _delete_airplane_from_dataset(self, airplane: "Airplane") -> None:
+        """Метод удаления данных о самолёте из датасета."""
+        id_key = airplane.airplane_id
+        del self._airplanes_data[id_key]
+
     def _get_airplanes_data_from_file(self) -> None:
         """Метод для извлечения данных о самолётах из прикрепленного к объекту класса файла."""
         try:
@@ -47,8 +52,8 @@ class BaseFileSaver(ABC):
                         airplane_id = data["airplane_id"]
                         country = data["country"]
                         on_ground = True if "true" in data["on_ground"].lower() else False
-                        geo_altitude =  float(data["geo_altitude"])
-                        velocity =  float(data["velocity"])
+                        geo_altitude = float(data["geo_altitude"])
+                        velocity = float(data["velocity"])
 
                         airplane = Airplane(airplane_id, country, on_ground, velocity, geo_altitude)
                         self._add_airplane_to_dataset(airplane)

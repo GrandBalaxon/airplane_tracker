@@ -30,7 +30,7 @@ if __name__ == '__main__':
     csv_saver = CSVSaver()
 
     csv_saver.add_airplane(aeroplane_1)
-    csv_saver.add_airplane(aeroplane_1)
+    csv_saver.add_airplane(aeroplane_2)
     # csv_saver.add_airplane(aeroplane_2)
     csv_saver.delete_airplane(aeroplane_1)
 

@@ -1,3 +1,3 @@
 airplane_id,country,on_ground,velocity,geo_altitude
-a612a6,United States,False,100.0,10203.18
-uwuwu9,Japan,False,220,8000
+uwuwu9,Japan,False,220.0,8000.0
+a612a7,United States,False,100.0,9203.18
