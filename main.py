@@ -17,24 +17,24 @@ if __name__ == '__main__':
     aeroplane_2 = Airplane("a612a7", "United States", False, 100, 9203.18)
 
     # Сохранение информации в файл JSON
-    json_saver = JSONSaver()
-
-    json_saver.add_airplane(aeroplane_1)
-    json_saver.add_airplane(aeroplane_2)
-    json_saver.delete_airplane(aeroplane_1)
-    json_saver.delete_airplane("a851")
-
-    aeroplane_3 = json_saver.get_airplane("a612a7")
+    # json_saver = JSONSaver()
+    #
+    # json_saver.add_airplane(aeroplane_1)
+    # json_saver.add_airplane(aeroplane_2)
+    # json_saver.delete_airplane(aeroplane_1)
+    # json_saver.delete_airplane("a851")
+    #
+    # aeroplane_3 = json_saver.get_airplane("a612a7")
 
     # Сохранение информации в файл CSV
     csv_saver = CSVSaver()
 
     csv_saver.add_airplane(aeroplane_1)
-    csv_saver.add_airplane(aeroplane_2)
-    csv_saver.add_airplane(aeroplane_3)
+    csv_saver.add_airplane(aeroplane_1)
+    # csv_saver.add_airplane(aeroplane_2)
     csv_saver.delete_airplane(aeroplane_1)
 
-    aeroplane_4 = csv_saver.get_airplane("a612a7")
+    # aeroplane_4 = csv_saver.get_airplane("a612a7")
 
     # # Функция для взаимодействия с пользователем
     # def user_interaction():

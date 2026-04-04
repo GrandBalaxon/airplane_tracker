@@ -4,7 +4,6 @@ from pathlib import Path
 
 from src.airplane import Airplane
 from src.base_saver import BaseFileSaver
-from src.utils import initialize_file
 
 logger = logging.getLogger("json_saver")
 
@@ -15,6 +14,7 @@ class JSONSaver(BaseFileSaver):
     Attributes:
         _file_name (str): Имя JSON-файла экземпляра класса.
         _file_path (Path): PATH к рабочему файлу экземпляра класса.
+        _airplanes_data (dict): uwu
     """
 
     _file_extension = ".json"
@@ -23,7 +23,7 @@ class JSONSaver(BaseFileSaver):
         self._file_name = file_name
         self._file_path: Path = self._get_path()
 
-        initialize_file(self._file_path)
+        self._initialize_file()
 
     def add_airplane(self, airplane: "Airplane") -> None:
         """Метод добавления информации о самолёте в JSON-файл."""
@@ -46,6 +46,7 @@ class JSONSaver(BaseFileSaver):
 
             with open(self._file_path, mode="w") as f:
                 json.dump(data, f, indent=4)
+
         except Exception as e:
             logger.error(f"Возникла ошибка: {e}")
             raise
@@ -94,8 +95,3 @@ class JSONSaver(BaseFileSaver):
         except Exception as e:
             logger.error(f"Возникла ошибка: {e}")
             raise
-
-
-if __name__ == "__main__":
-    uwu = JSONSaver("uwu.json")
-    print(uwu._file_path)

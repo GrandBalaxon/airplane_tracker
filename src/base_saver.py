@@ -8,6 +8,7 @@ from src.airplane import Airplane
 
 logger = logging.getLogger("base_saver")
 
+
 class BaseFileSaver(ABC):
     """Абстрактный базовый класс для сохранения в различные типы файлов."""
 
@@ -15,28 +16,47 @@ class BaseFileSaver(ABC):
 
     __slots__ = ["_file_name", "_file_path", "_airplanes_data"]
 
-    def _get_airplanes_data_from_file(self) -> dict | None:
+    def _add_airplane_to_dataset(self, airplane: "Airplane") -> None:
+        """Метод для добавления данных в датасет экземпляра класса."""
+        id_key = airplane.airplane_id
+        airplane_data = {
+            "country": airplane.country,
+            "on_ground": airplane.on_ground,
+            "geo_altitude": airplane.geo_altitude,
+            "velocity": airplane.velocity,
+        }
+        self._airplanes_data[id_key] = airplane_data
+
+    def _get_airplanes_data_from_file(self) -> None:
         """Метод для извлечения данных о самолётах из прикрепленного к объекту класса файла."""
         try:
             # Если идёт работа с JSON-файлом
             if self._file_path.suffix == ".json":
+                logger.debug("Идёт работа с JSON-файлом.")
                 with open(self._file_path, "r") as file:
                     airplanes_data: dict = json.load(file)
-                    return airplanes_data
 
             # Если идёт работа с CSV-файлом
             if self._file_path.suffix == ".csv":
-                airplanes_data = {}
-                with open(self._file_path, 'r') as file:
+                logger.debug("Идёт работа с CSV-файлом.")
+
+                with open(self._file_path, "r") as file:
                     dict_reader = csv.DictReader(file)
                     for data in dict_reader:
-                        airplanes_data[data["airplane_id"]] = {
-                            "country": data.country,
-                            "on_ground": data.on_ground,
-                            "geo_altitude": data.geo_altitude,
-                            "velocity": data.velocity,
-                        }
-                    return airplanes_data
+
+                        airplane_id = data["airplane_id"]
+                        country = data["country"]
+                        on_ground = True if "true" in data["on_ground"].lower() else False
+                        geo_altitude =  float(data["geo_altitude"])
+                        velocity =  float(data["velocity"])
+
+                        airplane = Airplane(airplane_id, country, on_ground, velocity, geo_altitude)
+                        self._add_airplane_to_dataset(airplane)
+
+                        logger.debug(f"Добавлена информация о {airplane.airplane_id} в датасет.")
+
+            logger.info(f"Из файла выгружены данные о {len(self._airplanes_data)} самолётах.")
+            logger.debug(self._airplanes_data)
 
         except Exception as e:
             logger.error(f"Непредвиденная ошибка: {e}")
@@ -54,7 +74,7 @@ class BaseFileSaver(ABC):
 
                 # Если идёт работа с CSV-файлом
                 if self._file_path.suffix == ".csv":
-                    with open(self._file_path, 'w', newline='') as file:
+                    with open(self._file_path, "w", newline="") as file:
                         fieldnames = ["airplane_id", "country", "on_ground", "velocity", "geo_altitude"]
                         writer = csv.DictWriter(file, fieldnames=fieldnames)
                         writer.writeheader()
@@ -66,8 +86,7 @@ class BaseFileSaver(ABC):
                 raise
         else:
             logger.info(f"Файл уже существует: {self._file_path}.")
-            self._airplanes_data: dict = self._get_airplanes_data_from_file()
-            logger.info(f"Из файла выгружены данные о {len(self._airplanes_data)} самолётах.")
+            self._get_airplanes_data_from_file()
 
     def _get_path(self) -> Path:
         """Метод для получения PATH к рабочему файлу."""
@@ -75,6 +94,38 @@ class BaseFileSaver(ABC):
             return Path(__file__).parent.parent / "data" / self._file_name
         else:
             return Path(__file__).parent.parent / "data" / f"{self._file_name}{self.__class__._file_extension}"
+
+    def _is_airplane_in_dataset(self, airplane: "Airplane") -> bool | None:
+        """
+        Метод проверки наличия данных о самолёте в датасете экземпляра класса.
+        При точном совпадении всех данных о борте - возвращает True.
+        """
+        try:
+            if isinstance(airplane, Airplane):
+                id_key = airplane.airplane_id
+
+                if len(self._airplanes_data) == 0:
+                    logger.info("Датасет пока что пуст.")
+                    return False
+                else:
+                    if id_key in self._airplanes_data:
+                        if (
+                            self._airplanes_data[id_key]["country"] == airplane.country
+                            and self._airplanes_data[id_key]["on_ground"] == airplane.on_ground
+                            and self._airplanes_data[id_key]["velocity"] == airplane.velocity
+                            and self._airplanes_data[id_key]["geo_altitude"] == airplane.geo_altitude
+                        ):
+                            return True
+                        else:
+                            return False
+                    else:
+                        return False
+            else:
+                raise TypeError(f"Неверный формат {type(airplane)}, ожидается объект класса Airplane.")
+
+        except Exception as e:
+            logger.error(f"Непредвиденная ошибка: {e}")
+            raise
 
     @abstractmethod
     def add_airplane(self, airplane: "Airplane") -> None:
