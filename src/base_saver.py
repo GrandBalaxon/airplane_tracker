@@ -100,19 +100,23 @@ class BaseFileSaver(ABC):
         else:
             return Path(__file__).parent.parent / "data" / f"{self._file_name}{self.__class__._file_extension}"
 
-    def _is_airplane_in_dataset(self, airplane: "Airplane") -> bool | None:
+    def _is_airplane_in_dataset(self, airplane: "Airplane | str") -> bool | None:
         """
         Метод проверки наличия данных о самолёте в датасете экземпляра класса.
+
+        Если на вход даётся объект класса "Airplane" - то проверяет все его данные.
         При точном совпадении всех данных о борте - возвращает True.
+
+        Если на вход даётся строка с "airplane_id", то проверяется наличие данных о данном самолёте по его ID.
         """
         try:
-            if isinstance(airplane, Airplane):
-                id_key = airplane.airplane_id
+            if len(self._airplanes_data) == 0:
+                logger.info(f"Датасет/{self.__class__._file_extension}-файл пока что пуст.")
+                return False
+            else:
+                if isinstance(airplane, Airplane):
+                    id_key = airplane.airplane_id
 
-                if len(self._airplanes_data) == 0:
-                    logger.info("Датасет пока что пуст.")
-                    return False
-                else:
                     if id_key in self._airplanes_data:
                         if (
                             self._airplanes_data[id_key]["country"] == airplane.country
@@ -125,8 +129,15 @@ class BaseFileSaver(ABC):
                             return False
                     else:
                         return False
-            else:
-                raise TypeError(f"Неверный формат {type(airplane)}, ожидается объект класса Airplane.")
+
+                elif isinstance(airplane, str):
+                    if airplane in self._airplanes_data:
+                        return True
+                    else:
+                        return False
+
+                else:
+                    raise TypeError(f"Неверный формат {type(airplane)}, ожидается объект класса Airplane или str.")
 
         except Exception as e:
             logger.error(f"Непредвиденная ошибка: {e}")

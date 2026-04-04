@@ -34,7 +34,7 @@ if __name__ == '__main__':
     # csv_saver.add_airplane(aeroplane_2)
     csv_saver.delete_airplane(aeroplane_1)
 
-    # aeroplane_4 = csv_saver.get_airplane("a612a7")
+    aeroplane_4 = csv_saver.get_airplane("a612a7")
 
     # # Функция для взаимодействия с пользователем
     # def user_interaction():

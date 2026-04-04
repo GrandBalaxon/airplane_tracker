@@ -14,7 +14,7 @@ class JSONSaver(BaseFileSaver):
     Attributes:
         _file_name (str): Имя JSON-файла экземпляра класса.
         _file_path (Path): PATH к рабочему файлу экземпляра класса.
-        _airplanes_data (dict): uwu
+        _airplanes_data (dict): Датасет с данными о всех текущих самолётах в файле экземпляра класса.
     """
 
     _file_extension = ".json"
@@ -22,7 +22,7 @@ class JSONSaver(BaseFileSaver):
     def __init__(self, file_name: str = "airplanes_data.json"):
         self._file_name = file_name
         self._file_path: Path = self._get_path()
-
+        self._airplanes_data = {}
         self._initialize_file()
 
     def add_airplane(self, airplane: "Airplane") -> None:
@@ -77,7 +77,12 @@ class JSONSaver(BaseFileSaver):
             raise
 
     def get_airplane(self, airplane_id: str) -> "Airplane | None":
-        """Метод получения информации о самолёте из JSON-файла."""
+        """Метод получения информации о самолёте из JSON-файла.
+
+        Attributes:
+        airplane_id (str): Уникальный идентификационный номер самолета по ИКАО, отображаемый в шестнадцатеричном
+            формате, как он установлен в транспондере самолета (может быть неверным, пример номера "a50e93")
+        """
         try:
             if not isinstance(airplane_id, str):
                 logger.warning(f"Неверный формат ID самолёта: {type(airplane_id)}.")

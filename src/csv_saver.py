@@ -14,7 +14,7 @@ class CSVSaver(BaseFileSaver):
     Attributes:
         _file_name (str): Имя CSV-файла экземпляра класса.
         _file_path (Path): PATH к рабочему файлу экземпляра класса.
-        _airplanes_data (dict): датасет с данными о всех текущих самолётах в файле экземпляра класса.
+        _airplanes_data (dict): Датасет с данными о всех текущих самолётах в файле экземпляра класса.
     """
 
     _file_extension = ".csv"
@@ -79,6 +79,26 @@ class CSVSaver(BaseFileSaver):
             logger.error(f"Возникла ошибка: {e}")
             raise
 
-    def get_airplane(self, airplane_id: str) -> "Airplane":
-        """Абстрактный метод получения информации о самолёте из файла."""
-        pass
+    def get_airplane(self, airplane_id: str) -> "Airplane | None":
+        """Метод получения информации о самолёте из CSV-файла.
+
+        Attributes:
+        airplane_id (str): Уникальный идентификационный номер самолета по ИКАО, отображаемый в шестнадцатеричном
+            формате, как он установлен в транспондере самолета (может быть неверным, пример номера "a50e93")
+        """
+        try:
+            if not isinstance(airplane_id, str):
+                logger.warning(f"Неверный формат ID самолёта: {type(airplane_id)}.")
+            else:
+                if self._is_airplane_in_dataset(airplane_id):
+
+                    airplane_data = self._airplanes_data.get(airplane_id)
+                    logger.info(f"Возвращение данных о борте {airplane_id} из CSV-файла.")
+                    return Airplane(aircraft_id=airplane_id, **airplane_data)
+
+                else:
+                    logger.warning(f"Данных о борте {airplane_id} не найдено в CSV-файле.")
+
+        except Exception as e:
+            logger.error(f"Возникла ошибка: {e}")
+            raise
