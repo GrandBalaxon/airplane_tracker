@@ -1,3 +1,7 @@
+import json
+
+import pytest
+
 from src.airplane import Airplane
 from src.json_saver import JSONSaver
 
@@ -14,6 +18,7 @@ def test_json_saver_add_and_get(tmp_path):
 
     assert result.airplane_id == "p1"
     assert result.country == "USA"
+    assert file_path.exists()
 
 
 def test_json_saver_no_duplicates(tmp_path):
@@ -45,3 +50,46 @@ def test_json_saver_delete(tmp_path):
     result = saver.get_airplane("p1")
     assert result is None
     assert saver.get_airplanes_amount() == 0
+
+
+def test_json_saver_loads_existing_file(tmp_path):
+    """Тест, что JSONSaver загружает данные из существующего файла."""
+    file_path = tmp_path / "test.json"
+    data = {
+        "p1": {
+            "country": "USA",
+            "on_ground": False,
+            "velocity": 200.0,
+            "geo_altitude": 1000.0,
+        }
+    }
+    with open(file_path, "w") as f:
+        json.dump(data, f)
+
+    saver = JSONSaver(str(file_path))
+    result = saver.get_airplane("p1")
+
+    assert result.airplane_id == "p1"
+    assert result.country == "USA"
+
+
+def test_json_empty_file(tmp_path):
+    """Тест, что пустой JSON файл не ломает загрузку."""
+    file_path = tmp_path / "test.json"
+    with open(file_path, "w") as f:
+        f.write("{}")
+
+    saver = JSONSaver(str(file_path))
+
+    assert saver.get_airplane("p1") is None
+
+
+def test_json_invalid_file(tmp_path):
+    """Тест, что при битом JSON выбрасывается ошибка."""
+    file_path = tmp_path / "test.json"
+
+    with open(file_path, "w") as f:
+        f.write("{invalid json}")
+
+    with pytest.raises(Exception):
+        JSONSaver(str(file_path))
