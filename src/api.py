@@ -12,7 +12,7 @@ class AirplanesAPI(BaseAPIClient):
         self._nominatim_url = "https://nominatim.openstreetmap.org/search"
         self._opensky_url = "https://opensky-network.org/api/states/all?"
 
-    def _get_country_bbox(self, country: str) -> list:
+    def _get_country_bbox(self, country: str) -> list[str]:
         """Приватный метод: получает bounding box страны через Nominatim."""
         params = {
             "country": country,
@@ -25,12 +25,12 @@ class AirplanesAPI(BaseAPIClient):
         if not data:
             raise ValueError(f"Некорректно указанная страна - {country}, полученная bbox пуста.")
         else:
-            bbox = data[0]["boundingbox"]
+            bbox: list[str] = data[0]["boundingbox"]
             logger.info(f"Данные о bbox получены: {bbox}")
 
             return bbox
 
-    def _get_airplanes_states(self, bbox: list) -> dict:
+    def _get_airplanes_states(self, bbox: list[str]) -> dict[str, Any]:
         """Приватный метод: получает состояния самолётов в заданном bounding box через OpenSky."""
         params = {"lamin": bbox[0], "lamax": bbox[1], "lomin": bbox[2], "lomax": bbox[3]}
         data = self._make_request(self._opensky_url, params=params)

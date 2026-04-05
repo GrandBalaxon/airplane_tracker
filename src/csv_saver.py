@@ -1,6 +1,7 @@
 import csv
 import logging
 from pathlib import Path
+from typing import Any
 
 from src.airplane import Airplane
 from src.base_saver import BaseFileSaver
@@ -68,7 +69,7 @@ class CSVSaver(BaseFileSaver):
             if self._is_airplane_in_dataset(airplane):
                 logger.info(f"Данные о борте {id_key} найдены в файле.")
 
-                self._delete_airplane_from_dataset(airplane)
+                self._delete_airplane_from_dataset(id_key)
                 self._write_airplanes_data_to_file()
 
                 logger.info(f"Данные о борте {id_key} удалены из файла.")
@@ -80,8 +81,8 @@ class CSVSaver(BaseFileSaver):
             logger.error(f"Возникла ошибка: {e}")
             raise
 
-    def get_airplane(self, airplane_id: str) -> "Airplane | None":
-        """Метод получения информации о самолёте из CSV-файла.
+    def get_airplane(self, airplane_id: str | Any) -> "Airplane | None":
+        """Метод получения информации о самолёте из CSV-файла (при их наличии, иначе вернет None).
 
         Args:
             airplane_id (str): Уникальный идентификационный номер самолета по ИКАО, отображаемый в шестнадцатеричном
@@ -90,6 +91,7 @@ class CSVSaver(BaseFileSaver):
         try:
             if not isinstance(airplane_id, str):
                 logger.warning(f"Неверный формат ID самолёта: {type(airplane_id)}.")
+                return None
             else:
                 if self._is_airplane_in_dataset(airplane_id):
 
@@ -99,6 +101,7 @@ class CSVSaver(BaseFileSaver):
 
                 else:
                     logger.warning(f"Данных о борте {airplane_id} не найдено в CSV-файле.")
+                    return None
 
         except Exception as e:
             logger.error(f"Возникла ошибка: {e}")

@@ -3,6 +3,7 @@ import json
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
+from typing import Any
 
 from src.airplane import Airplane
 
@@ -16,6 +17,10 @@ class BaseFileSaver(ABC):
 
     __slots__ = ["_file_name", "_file_path", "_airplanes_data"]
 
+    _file_name: str
+    _file_path: Path
+    _airplanes_data: dict[str, dict[str, Any]]
+
     def _add_airplane_to_dataset(self, airplane: "Airplane") -> None:
         """Метод для добавления данных в датасет экземпляра класса."""
         id_key = airplane.airplane_id
@@ -27,9 +32,8 @@ class BaseFileSaver(ABC):
         }
         self._airplanes_data[id_key] = airplane_data
 
-    def _delete_airplane_from_dataset(self, airplane: "Airplane") -> None:
+    def _delete_airplane_from_dataset(self, id_key: str) -> None:
         """Метод удаления данных о самолёте из датасета."""
-        id_key = airplane.airplane_id
         del self._airplanes_data[id_key]
 
     def _get_airplanes_data_from_file(self) -> None:
@@ -155,7 +159,7 @@ class BaseFileSaver(ABC):
         pass
 
     @abstractmethod
-    def get_airplane(self, airplane_id: str) -> "Airplane":
+    def get_airplane(self, airplane_id: str) -> "Airplane | None":
         """Абстрактный метод получения информации о самолёте из файла."""
         pass
 
