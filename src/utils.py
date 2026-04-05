@@ -20,34 +20,34 @@ def generate_filename(country: str, extension: str) -> str:
 
 
 def create_saver(country: str, airplanes: list[Airplane]) -> None:
-    """Функция для выбора расширения файла для сохранения базы данных с самолётами и создания saver объекта."""
+    """Функция выбора формата и сохранения данных."""
+    savers = {
+        "JSON": JSONSaver,
+        "CSV": CSVSaver
+    }
+
     while True:
         file_extension = input("Выберите формат файла для сохранения (JSON/CSV): ").upper()
-        if file_extension == "JSON":
-            file_name = input("Введите имя файла (или Enter): ")
-            if file_name == "":
-                saver = JSONSaver(generate_filename(country, file_extension))
-            else:
-                saver = JSONSaver(file_name)
-            for data in airplanes:
-                saver.add_airplane(data)
-            logger.info(f"добавлено {JSONSaver.get_airplanes_amount} в JSON-файл.")
-            break
-        elif file_extension == "CSV":
-            file_name = input("Введите имя файла (или Enter): ")
-            if file_name == "":
-                saver = CSVSaver(generate_filename(country, file_extension))
-            else:
-                saver = CSVSaver(file_name)
-            for data in airplanes:
-                saver.add_airplane(data)
-            logger.info(f"добавлено {saver.get_airplanes_amount} в CSV-файл.")
-            break
-        else:
-            print("Указан не верный формат.")
+        saver_class = savers.get(file_extension)
+
+        if not saver_class:
+            print("Указан неверный формат.")
+            continue
+
+        file_name = input("Введите имя файла (или Enter): ").strip()
+        if not file_name:
+            file_name = generate_filename(country, file_extension)
+
+        saver = saver_class(file_name)
+
+        for airplane in airplanes:
+            saver.add_airplane(airplane)
+
+        logger.info(f"Добавлено {saver.get_airplanes_amount()} в {file_extension}-файл.")
+        break
 
 
-def filter_aeroplanes(airplanes: list[Airplane], filter_words: list[str]) -> list[Airplane]:
+def filter_aeroplanes(airplanes: list[Airplane], filter_words: str) -> list[Airplane]:
     """Функция для фильтрации списка объектов класса Airplane по стране регистрации.
 
     Args:
@@ -57,7 +57,14 @@ def filter_aeroplanes(airplanes: list[Airplane], filter_words: list[str]) -> lis
     try:
         if filter_words:
             logger.info(f"Список фильтрации: {filter_words}.")
-            filtered_list = [plane for plane in airplanes if plane.country in filter_words]
+            country_list = [x.strip().lower() for x in filter_words.split(",")]
+
+            filtered_list = [plane for plane in airplanes if plane.country.lower().strip() in country_list]
+
+            logger.info(f"Отфильтровано по странам {len(filtered_list)} самолётов.")
+            for country in country_list:
+                logger.info(f"{country.title()}: {len([x for x in filtered_list if x.country.lower().strip() == country])}.")
+
             return filtered_list
         else:
             logger.info("Не указано стран для фильтрации списка.")
@@ -115,8 +122,13 @@ def get_top_aeroplanes(airplanes: list[Airplane], top_n: int) -> list[Airplane]:
         top_n (int): Число N - количество выдаваемых функцией позиций самолётов
     """
     try:
-        top_list = airplanes[:top_n]
-        return top_list
+        if isinstance(top_n, int) and top_n != 0:
+            top_list = airplanes[:top_n]
+            logger.info(f"Отсеяно топ {top_n} самолётов.")
+            return top_list
+        else:
+            logger.warning("Не указано число N.")
+            return airplanes
 
     except Exception as e:
         logger.error(f"Возникла ошибка: {e}")
@@ -129,6 +141,7 @@ def print_aeroplanes(airplanes: list[Airplane]) -> None:
         print("\nФинальный список самолётов:")
         for airplane in airplanes:
             print(airplane)
+
     except Exception as e:
         logger.error(f"Возникла ошибка: {e}")
         raise

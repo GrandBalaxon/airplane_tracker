@@ -40,16 +40,10 @@ class Airplane:
         )
 
     def __str__(self) -> str:
-        return (
-            f"Airplane (icao_id = {self.airplane_id}, country = {self.country}, "
-            f"on_ground = {self.on_ground}, velocity = {self.velocity}, geo_altitude = {self.geo_altitude})"
-        )
-
-    # def __str__(self) -> str:
-    #     """Переопределенный метод для отображения str экземпляра класса."""
-    #     velocity_str = f"{self.velocity} м/c" if self.velocity else "0"
-    #     altitude_str = f"{self.geo_altitude} м" if self.geo_altitude else "на земле"
-    #     return f"Борт {self.aircraft_id} - {self.country} (Скорость: {velocity_str}, Высота: {altitude_str})"
+        """Переопределенный метод для отображения str экземпляра класса."""
+        velocity_str = f"{self.velocity} м/c" if self.velocity else "0"
+        altitude_str = f"{self.geo_altitude} м" if self.geo_altitude else "на земле"
+        return f"Борт {self.airplane_id} - {self.country} (Скорость: {velocity_str}, Высота: {altitude_str})"
 
     @staticmethod
     def _validate_aircraft_id(value: str | int) -> str:

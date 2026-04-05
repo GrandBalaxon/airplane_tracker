@@ -18,9 +18,10 @@ def user_interaction() -> None:
 
         create_saver(country, airplanes)
 
-        top_n = int(input("Введите количество самолетов для вывода в топ N по высоте полета: "))
-        filter_words = input("Введите названия стран для фильтрации по стране регистрации: ").split()
-        altitude_range = input("Введите диапазон высот полета: ")
+        top_n_str = input("Введите количество самолетов для вывода в топ N по высоте полета (или Enter): ")
+        top_n = int(top_n_str) if top_n_str != "" else 0
+        filter_words = input("Введите названия стран для фильтрации через запятую (или Enter): ")
+        altitude_range = input("Введите диапазон высот полета (или Enter): ")
 
         filtered_aeroplanes = filter_aeroplanes(airplanes, filter_words)
         ranged_aeroplanes = get_aeroplanes_by_altitude(filtered_aeroplanes, altitude_range)
