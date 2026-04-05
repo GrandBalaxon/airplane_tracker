@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import Any, cast
 
 from .base_api import BaseAPIClient
 
@@ -21,6 +21,7 @@ class AirplanesAPI(BaseAPIClient):
         }
         headers = {"User-Agent": "airplane-tracker-test-app"}
         data = self._make_request(self._nominatim_url, params=params, headers=headers)
+        data = cast(list[dict[str, Any]], data)
 
         if not data:
             raise ValueError(f"Некорректно указанная страна - {country}, полученная bbox пуста.")
@@ -36,7 +37,7 @@ class AirplanesAPI(BaseAPIClient):
         data = self._make_request(self._opensky_url, params=params)
         logger.info("Данные успешно загружены.")
 
-        return data
+        return cast(dict[str, Any], data)
 
     def get_airplanes(self, country: str) -> list[list[Any]]:
         """Метод, что возвращает список самолётов и их данные для указанной страны."""
@@ -50,4 +51,4 @@ class AirplanesAPI(BaseAPIClient):
         else:
             logger.warning("Отсутствуют воздушные суда в указанной стране.")
 
-        return result
+        return cast(list[list[Any]], result)

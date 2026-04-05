@@ -80,6 +80,9 @@ class JSONSaver(BaseFileSaver):
                 if self._is_airplane_in_dataset(airplane_id):
 
                     airplane_data = self._airplanes_data.get(airplane_id)
+                    if airplane_data is None:
+                        return None
+
                     logger.info(f"Возвращение данных о борте {airplane_id} из JSON-файла.")
                     return Airplane(aircraft_id=airplane_id, **airplane_data)
 
