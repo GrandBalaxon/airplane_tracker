@@ -21,10 +21,7 @@ def generate_filename(country: str, extension: str) -> str:
 
 def create_saver(country: str, airplanes: list[Airplane]) -> None:
     """Функция выбора формата и сохранения данных."""
-    savers = {
-        "JSON": JSONSaver,
-        "CSV": CSVSaver
-    }
+    savers = {"JSON": JSONSaver, "CSV": CSVSaver}
 
     while True:
         file_extension = input("Выберите формат файла для сохранения (JSON/CSV): ").upper()
@@ -47,7 +44,7 @@ def create_saver(country: str, airplanes: list[Airplane]) -> None:
         break
 
 
-def filter_aeroplanes(airplanes: list[Airplane], filter_words: str) -> list[Airplane]:
+def filter_airplanes(airplanes: list[Airplane], filter_words: str) -> list[Airplane]:
     """Функция для фильтрации списка объектов класса Airplane по стране регистрации.
 
     Args:
@@ -63,7 +60,9 @@ def filter_aeroplanes(airplanes: list[Airplane], filter_words: str) -> list[Airp
 
             logger.info(f"Отфильтровано по странам {len(filtered_list)} самолётов.")
             for country in country_list:
-                logger.info(f"{country.title()}: {len([x for x in filtered_list if x.country.lower().strip() == country])}.")
+                logger.info(
+                    f"{country.title()}: {len([x for x in filtered_list if x.country.lower().strip() == country])}."
+                )
 
             return filtered_list
         else:
@@ -75,7 +74,7 @@ def filter_aeroplanes(airplanes: list[Airplane], filter_words: str) -> list[Airp
         raise
 
 
-def get_aeroplanes_by_altitude(airplanes: list[Airplane], altitude_range: str) -> list[Airplane]:
+def get_airplanes_by_altitude(airplanes: list[Airplane], altitude_range: str) -> list[Airplane]:
     """Функция для фильтрации списка объектов класса Airplane по геометрической высоте.
 
     Args:
@@ -103,7 +102,7 @@ def get_aeroplanes_by_altitude(airplanes: list[Airplane], altitude_range: str) -
         raise
 
 
-def sort_aeroplanes(airplanes: list[Airplane]) -> list[Airplane]:
+def sort_airplanes(airplanes: list[Airplane]) -> list[Airplane]:
     """Функция для сортировки самолётов по высоте."""
     try:
         sorted_aeroplanes = sorted(airplanes, key=lambda x: x.geo_altitude, reverse=True)
@@ -114,7 +113,7 @@ def sort_aeroplanes(airplanes: list[Airplane]) -> list[Airplane]:
         return airplanes
 
 
-def get_top_aeroplanes(airplanes: list[Airplane], top_n: int) -> list[Airplane]:
+def get_top_airplanes(airplanes: list[Airplane], top_n: int) -> list[Airplane]:
     """Функция выдаёт N самолётов из списка.
 
     Args:
@@ -135,7 +134,7 @@ def get_top_aeroplanes(airplanes: list[Airplane], top_n: int) -> list[Airplane]:
         return airplanes
 
 
-def print_aeroplanes(airplanes: list[Airplane]) -> None:
+def print_airplanes(airplanes: list[Airplane]) -> None:
     """Функция для вывода списка самолётов на экран."""
     try:
         print("\nФинальный список самолётов:")

@@ -2,8 +2,8 @@ import logging
 
 from src.airplane import Airplane
 from src.api import AirplanesAPI
-from src.utils import create_saver, filter_aeroplanes, get_aeroplanes_by_altitude, sort_aeroplanes, get_top_aeroplanes, \
-    print_aeroplanes
+from src.utils import create_saver, filter_airplanes, get_airplanes_by_altitude, sort_airplanes, get_top_airplanes, \
+    print_airplanes
 
 logger = logging.getLogger("main")
 
@@ -23,12 +23,12 @@ def user_interaction() -> None:
         filter_words = input("Введите названия стран для фильтрации через запятую (или Enter): ")
         altitude_range = input("Введите диапазон высот полета (или Enter): ")
 
-        filtered_aeroplanes = filter_aeroplanes(airplanes, filter_words)
-        ranged_aeroplanes = get_aeroplanes_by_altitude(filtered_aeroplanes, altitude_range)
-        sorted_aeroplanes = sort_aeroplanes(ranged_aeroplanes)
-        top_aeroplanes = get_top_aeroplanes(sorted_aeroplanes, top_n)
+        filtered_aeroplanes = filter_airplanes(airplanes, filter_words)
+        ranged_aeroplanes = get_airplanes_by_altitude(filtered_aeroplanes, altitude_range)
+        sorted_aeroplanes = sort_airplanes(ranged_aeroplanes)
+        top_aeroplanes = get_top_airplanes(sorted_aeroplanes, top_n)
 
-        print_aeroplanes(top_aeroplanes)
+        print_airplanes(top_aeroplanes)
 
     else:
         print("Отсутствуют воздушные суда в указанной стране.")
