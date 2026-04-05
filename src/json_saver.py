@@ -39,7 +39,7 @@ class JSONSaver(BaseFileSaver):
                 self._add_airplane_to_dataset(airplane)
                 self._write_airplanes_data_to_file()
 
-                logger.info(f"Данные о борте {airplane.airplane_id} записаны в файл.")
+                logger.debug(f"Данные о борте {airplane.airplane_id} записаны в файл.")
 
         except Exception as e:
             logger.error(f"Возникла ошибка: {e}")
@@ -67,9 +67,9 @@ class JSONSaver(BaseFileSaver):
     def get_airplane(self, airplane_id: str) -> "Airplane | None":
         """Метод получения информации о самолёте из JSON-файла.
 
-        Attributes:
-        airplane_id (str): Уникальный идентификационный номер самолета по ИКАО, отображаемый в шестнадцатеричном
-            формате, как он установлен в транспондере самолета (может быть неверным, пример номера "a50e93")
+        Args:
+            airplane_id (str): Уникальный идентификационный номер самолета по ИКАО, отображаемый в шестнадцатеричном
+                формате, как он установлен в транспондере самолета (может быть неверным, пример номера "a50e93")
         """
         try:
             if not isinstance(airplane_id, str):

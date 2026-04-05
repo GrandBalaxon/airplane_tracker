@@ -158,3 +158,10 @@ class BaseFileSaver(ABC):
     def get_airplane(self, airplane_id: str) -> "Airplane":
         """Абстрактный метод получения информации о самолёте из файла."""
         pass
+
+    def get_airplanes_amount(self) -> int:
+        """Геттер выдающий текущее количество самолетов в датасете/файле экземпляра класса."""
+        if len(self._airplanes_data) > 0:
+            return len(self._airplanes_data)
+        else:
+            return 0
