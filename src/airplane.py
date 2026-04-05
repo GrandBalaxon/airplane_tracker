@@ -95,9 +95,8 @@ class Airplane:
                 return float(value)
 
         elif value is None:
-            if not self.on_ground and value:
+            if not self.on_ground:
                 info = f"Борт {self.airplane_id} - {self.country} сейчас на земле, но имеет знач. высоты {value}."
-                logger.debug(f"Значение {value}, тип {type(value)}")
                 raise ValueError(info)
             else:
                 return 0
@@ -141,9 +140,9 @@ class Airplane:
         if not isinstance(other, Airplane):
             raise TypeError(f"Ошибка: сравнение с некорректным типом {type(other)}.")
         elif self.geo_altitude == other.geo_altitude:
-            return self.velocity < other.velocity
+            return self.velocity <= other.velocity
         else:
-            return self.geo_altitude < other.geo_altitude
+            return self.geo_altitude <= other.geo_altitude
 
     def __gt__(self, other: "Airplane") -> bool:
         """Метод для логического сравнения 'больше чем'."""
@@ -159,9 +158,9 @@ class Airplane:
         if not isinstance(other, Airplane):
             raise TypeError(f"Ошибка: сравнение с некорректным типом {type(other)}.")
         elif self.geo_altitude == other.geo_altitude:
-            return self.velocity > other.velocity
+            return self.velocity >= other.velocity
         else:
-            return self.geo_altitude > other.geo_altitude
+            return self.geo_altitude >= other.geo_altitude
 
     @classmethod
     def cast_to_object_list(cls, states_list: list[list[Any]]) -> list[Airplane]:
