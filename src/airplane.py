@@ -126,41 +126,39 @@ class Airplane:
             info = f"Скорость должна быть числом или None, получено {type(value)}"
             raise TypeError(info)
 
+    def _comparison_key(self) -> tuple[float, float]:
+        """Приватный метод, возвращающий ключ для сравнения самолётов по высоте и скорости."""
+        return self.geo_altitude, self.velocity
+
     def __lt__(self, other: "Airplane") -> bool:
         """Метод для логического сравнения 'меньше чем'."""
         if not isinstance(other, Airplane):
             raise TypeError(f"Ошибка: сравнение с некорректным типом {type(other)}.")
-        elif self.geo_altitude == other.geo_altitude:
-            return self.velocity < other.velocity
-        else:
-            return self.geo_altitude < other.geo_altitude
+        return self._comparison_key() < other._comparison_key()
 
     def __le__(self, other: "Airplane") -> bool:
         """Метод для логического сравнения 'меньше или равно'."""
         if not isinstance(other, Airplane):
             raise TypeError(f"Ошибка: сравнение с некорректным типом {type(other)}.")
-        elif self.geo_altitude == other.geo_altitude:
-            return self.velocity <= other.velocity
-        else:
-            return self.geo_altitude <= other.geo_altitude
+        return self._comparison_key() <= other._comparison_key()
 
     def __gt__(self, other: "Airplane") -> bool:
         """Метод для логического сравнения 'больше чем'."""
         if not isinstance(other, Airplane):
             raise TypeError(f"Ошибка: сравнение с некорректным типом {type(other)}.")
-        elif self.geo_altitude == other.geo_altitude:
-            return self.velocity > other.velocity
-        else:
-            return self.geo_altitude > other.geo_altitude
+        return self._comparison_key() > other._comparison_key()
 
     def __ge__(self, other: "Airplane") -> bool:
         """Метод для логического сравнения 'больше или равно'."""
         if not isinstance(other, Airplane):
             raise TypeError(f"Ошибка: сравнение с некорректным типом {type(other)}.")
-        elif self.geo_altitude == other.geo_altitude:
-            return self.velocity >= other.velocity
-        else:
-            return self.geo_altitude >= other.geo_altitude
+        return self._comparison_key() >= other._comparison_key()
+
+    def __eq__(self, other: object) -> bool:
+        """Метод для логического сравнения равенства самолётов."""
+        if not isinstance(other, Airplane):
+            return False
+        return self._comparison_key() == other._comparison_key()
 
     @classmethod
     def cast_to_object_list(cls, states_list: list[list[Any]]) -> list[Airplane]:
