@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import Any, cast
 
 from .base_api import BaseAPIClient
 
@@ -12,7 +12,7 @@ class AirplanesAPI(BaseAPIClient):
         self._nominatim_url = "https://nominatim.openstreetmap.org/search"
         self._opensky_url = "https://opensky-network.org/api/states/all?"
 
-    def _get_country_bbox(self, country: str) -> list:
+    def _get_country_bbox(self, country: str) -> list[str]:
         """Приватный метод: получает bounding box страны через Nominatim."""
         params = {
             "country": country,
@@ -21,19 +21,23 @@ class AirplanesAPI(BaseAPIClient):
         }
         headers = {"User-Agent": "airplane-tracker-test-app"}
         data = self._make_request(self._nominatim_url, params=params, headers=headers)
+        data = cast(list[dict[str, Any]], data)
 
-        bbox = data[0]["boundingbox"]
-        logger.info(f"Данные о bbox получены: {bbox}")
+        if not data:
+            raise ValueError(f"Некорректно указанная страна - {country}, полученная bbox пуста.")
+        else:
+            bbox: list[str] = data[0]["boundingbox"]
+            logger.info(f"Данные о bbox получены: {bbox}")
 
-        return bbox
+            return bbox
 
-    def _get_airplanes_states(self, bbox: list) -> dict:
+    def _get_airplanes_states(self, bbox: list[str]) -> dict[str, Any]:
         """Приватный метод: получает состояния самолётов в заданном bounding box через OpenSky."""
         params = {"lamin": bbox[0], "lamax": bbox[1], "lomin": bbox[2], "lomax": bbox[3]}
         data = self._make_request(self._opensky_url, params=params)
         logger.info("Данные успешно загружены.")
 
-        return data
+        return cast(dict[str, Any], data)
 
     def get_airplanes(self, country: str) -> list[list[Any]]:
         """Метод, что возвращает список самолётов и их данные для указанной страны."""
@@ -47,4 +51,4 @@ class AirplanesAPI(BaseAPIClient):
         else:
             logger.warning("Отсутствуют воздушные суда в указанной стране.")
 
-        return result
+        return cast(list[list[Any]], result)

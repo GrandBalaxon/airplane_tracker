@@ -3,6 +3,7 @@ import re
 from datetime import datetime
 
 from src.airplane import Airplane
+from src.base_saver import BaseFileSaver
 from src.csv_saver import CSVSaver
 from src.json_saver import JSONSaver
 
@@ -19,29 +20,17 @@ def generate_filename(country: str, extension: str) -> str:
     )
 
 
-def create_saver(country: str, airplanes: list[Airplane]) -> None:
-    """Функция выбора формата и сохранения данных."""
-    savers = {"JSON": JSONSaver, "CSV": CSVSaver}
+def create_saver(saver_class: type, file_name: str) -> BaseFileSaver:
+    """Создаёт и возвращает экземпляр saver."""
+    return saver_class(file_name)
 
-    while True:
-        file_extension = input("Выберите формат файла для сохранения (JSON/CSV): ").upper()
-        saver_class = savers.get(file_extension)
 
-        if not saver_class:
-            print("Указан неверный формат.")
-            continue
+def save_airplanes(saver: BaseFileSaver, airplanes: list[Airplane]) -> None:
+    """Сохраняет список самолётов в saver."""
+    for airplane in airplanes:
+        saver.add_airplane(airplane)
 
-        file_name = input("Введите имя файла (или Enter): ").strip()
-        if not file_name:
-            file_name = generate_filename(country, file_extension)
-
-        saver = saver_class(file_name)
-
-        for airplane in airplanes:
-            saver.add_airplane(airplane)
-
-        logger.info(f"Добавлено {saver.get_airplanes_amount()} в {file_extension}-файл.")
-        break
+    logger.info(f"Добавлено {saver.get_airplanes_amount()} самолётов в файл.")
 
 
 def filter_airplanes(airplanes: list[Airplane], filter_words: str) -> list[Airplane]:
@@ -91,10 +80,10 @@ def get_airplanes_by_altitude(airplanes: list[Airplane], altitude_range: str) ->
                 ]
                 return filtered_list
             else:
-                logger.warning(f"Неверно указан диапазон высот: {alt_range_cleaned[0]}.")
+                logger.warning(f"Неверно указан диапазон высот: {altitude_range}.")
                 return airplanes
         else:
-            logger.warning(f"Неверно указан диапазон высот: {altitude_range}.")
+            logger.info(f"Не был указан диапазон высот.")
             return airplanes
 
     except Exception as e:
@@ -105,7 +94,11 @@ def get_airplanes_by_altitude(airplanes: list[Airplane], altitude_range: str) ->
 def sort_airplanes(airplanes: list[Airplane]) -> list[Airplane]:
     """Функция для сортировки самолётов по высоте."""
     try:
-        sorted_aeroplanes = sorted(airplanes, key=lambda x: x.geo_altitude, reverse=True)
+        sorted_aeroplanes = sorted(
+            airplanes,
+            key=lambda x: (x.geo_altitude, x.velocity),
+            reverse=True
+        )
         return sorted_aeroplanes
 
     except Exception as e:
