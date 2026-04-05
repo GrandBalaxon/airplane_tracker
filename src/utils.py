@@ -91,10 +91,10 @@ def get_airplanes_by_altitude(airplanes: list[Airplane], altitude_range: str) ->
                 ]
                 return filtered_list
             else:
-                logger.warning(f"Неверно указан диапазон высот: {alt_range_cleaned[0]}.")
+                logger.warning(f"Неверно указан диапазон высот: {altitude_range}.")
                 return airplanes
         else:
-            logger.warning(f"Неверно указан диапазон высот: {altitude_range}.")
+            logger.info(f"Не был указан диапазон высот.")
             return airplanes
 
     except Exception as e:

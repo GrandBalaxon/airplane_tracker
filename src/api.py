@@ -22,10 +22,13 @@ class AirplanesAPI(BaseAPIClient):
         headers = {"User-Agent": "airplane-tracker-test-app"}
         data = self._make_request(self._nominatim_url, params=params, headers=headers)
 
-        bbox = data[0]["boundingbox"]
-        logger.info(f"Данные о bbox получены: {bbox}")
+        if not data:
+            raise ValueError(f"Некорректно указанная страна - {country}, полученная bbox пуста.")
+        else:
+            bbox = data[0]["boundingbox"]
+            logger.info(f"Данные о bbox получены: {bbox}")
 
-        return bbox
+            return bbox
 
     def _get_airplanes_states(self, bbox: list) -> dict:
         """Приватный метод: получает состояния самолётов в заданном bounding box через OpenSky."""
