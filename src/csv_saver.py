@@ -26,6 +26,26 @@ class CSVSaver(BaseFileSaver):
         self._airplanes_data = {}
         self._initialize_file()
 
+    def _initialize_file(self) -> None:
+        """Метод для проверки существования CSV-файла и его инициализации при отсутствии."""
+        if not self._file_path.exists():
+            logger.info(f"Файл по пути {self._file_path} не найден. Создаем CSV-файл с заголовками.")
+            try:
+                if self._file_path.suffix == ".csv":
+                    with open(self._file_path, "w", newline="") as file:
+                        fieldnames = ["airplane_id", "country", "on_ground", "velocity", "geo_altitude"]
+                        writer = csv.DictWriter(file, fieldnames=fieldnames)
+                        writer.writeheader()
+
+                logger.info(f"Создан файл {self._file_path.name} с пустым словарем.")
+
+            except Exception as e:
+                logger.error(f"Ошибка при создании файла: {e}")
+                raise
+        else:
+            logger.info(f"Файл уже существует: {self._file_path}.")
+            self._get_airplanes_data_from_file()
+
     def _write_airplanes_data_to_file(self) -> None:
         """Приватный метод для внесения всех текущих данных из датасета в CSV-файл."""
         rows = []
