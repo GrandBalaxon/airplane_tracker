@@ -3,7 +3,7 @@
 ![Python](https://img.shields.io/badge/python-3.9+-blue.svg)
 ![Requests](https://img.shields.io/badge/library-requests-green.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
-![Coverage](https://img.shields.io/badge/coverage-80%25-yellow)
+![Coverage](https://img.shields.io/badge/coverage-81%25-yellow)
 
 ---
 
@@ -117,9 +117,10 @@ python main.py
 - `JSONSaver`, `CSVSaver` — реализация сохранения данных  
 
 - `utils.py` — вспомогательные функции:
-  - фильтрация
-  - сортировка
+  - фильтрация и сортировка самолётов
   - выбор формата сохранения
+  - генерация имени файла
+  - создание saver-классов
 
 ---
 
@@ -131,9 +132,9 @@ python main.py
 - CSV
 
 Особенности:
-- данные не перезаписываются
+- данные сохраняются через внутренний датасет
+- файл обновляется без потери уже сохранённых данных
 - отсутствуют дубликаты
-- используется внутренний датасет
 
 ---
 
