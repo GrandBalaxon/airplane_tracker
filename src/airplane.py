@@ -89,9 +89,7 @@ class Airplane:
 
         if isinstance(value, (int, float)):
             if value < -400 or value > 40000:
-                raise ValueError(
-                    f"Борт {self.airplane_id} - {self.country}: высота {value} вне диапазона"
-                )
+                raise ValueError(f"Борт {self.airplane_id} - {self.country}: высота {value} вне диапазона")
             return float(value)
 
         elif value is None:
@@ -106,8 +104,7 @@ class Airplane:
         if isinstance(value, (int, float)):
             if value < 0 or value > 1000:
                 raise ValueError(
-                    f"Борт {self.airplane_id} - {self.country}: "
-                    f"скорость {value} м/с вне диапазона (0–1000 м/с)"
+                    f"Борт {self.airplane_id} - {self.country}: " f"скорость {value} м/с вне диапазона (0–1000 м/с)"
                 )
             return float(value)
 
