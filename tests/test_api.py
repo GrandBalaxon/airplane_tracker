@@ -1,9 +1,35 @@
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 import pytest
 
 from src.api import AirplanesAPI
 
+
+@patch("requests.get")
+def test_make_request_success(mock_get):
+    """Тест успешного HTTP-запроса."""
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {"key": "value"}
+
+    mock_get.return_value = mock_response
+
+    result = AirplanesAPI._make_request("http://test.com")
+
+    assert result == {"key": "value"}
+
+
+@patch("requests.get")
+def test_make_request_failure(mock_get):
+    """Тест ошибки при плохом статус-коде."""
+    mock_response = MagicMock()
+    mock_response.status_code = 500
+    mock_response.text = "Server error"
+
+    mock_get.return_value = mock_response
+
+    with pytest.raises(Exception):
+        AirplanesAPI._make_request("http://test.com")
 
 @patch("src.api.AirplanesAPI._make_request")
 def test_get_country_bbox_success(mock_request):
