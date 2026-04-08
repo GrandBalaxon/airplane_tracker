@@ -1,4 +1,4 @@
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -31,12 +31,11 @@ def test_make_request_failure(mock_get):
     with pytest.raises(Exception):
         AirplanesAPI._make_request("http://test.com")
 
+
 @patch("src.api.AirplanesAPI._make_request")
 def test_get_country_bbox_success(mock_request):
     """Тест получения bounding box."""
-    mock_request.return_value = [
-        {"boundingbox": ["1", "2", "3", "4"]}
-    ]
+    mock_request.return_value = [{"boundingbox": ["1", "2", "3", "4"]}]
 
     api = AirplanesAPI()
     bbox = api._get_country_bbox("Uzbekistan")
@@ -50,10 +49,7 @@ def test_get_country_bbox_empty(mock_request):
     mock_request.return_value = []
     api = AirplanesAPI()
 
-    with pytest.raises(
-            ValueError,
-            match="Некорректно указанная страна - Nowhere, полученная bbox пуста."
-    ):
+    with pytest.raises(ValueError, match="Некорректно указанная страна - Nowhere, полученная bbox пуста."):
         api._get_country_bbox("Nowhere")
 
 
@@ -73,9 +69,7 @@ def test_get_airplanes_states(mock_request):
 def test_get_airplanes_success(mock_bbox, mock_states):
     """Тест полного получения самолётов."""
     mock_bbox.return_value = ["1", "2", "3", "4"]
-    mock_states.return_value = {
-        "states": [["plane1"], ["plane2"]]
-    }
+    mock_states.return_value = {"states": [["plane1"], ["plane2"]]}
 
     api = AirplanesAPI()
     result = api.get_airplanes("Uzbekistan")

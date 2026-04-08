@@ -1,7 +1,5 @@
 import json
 
-import pytest
-
 from src.airplane import Airplane
 from src.json_saver import JSONSaver
 
@@ -84,12 +82,37 @@ def test_json_empty_file(tmp_path):
     assert saver.get_airplane("p1") is None
 
 
-def test_json_invalid_file(tmp_path):
-    """Тест, что при битом JSON выбрасывается ошибка."""
+def test_get_airplanes_data_json_decode_error(tmp_path):
+    """Тест обработка случая JSONDecodeError."""
     file_path = tmp_path / "test.json"
-
     with open(file_path, "w") as f:
-        f.write("{invalid json}")
+        f.write("{ invalid json")
 
-    with pytest.raises(Exception):
-        JSONSaver(str(file_path))
+    saver = JSONSaver(str(file_path.name))
+    saver._file_path = file_path
+
+    saver._get_airplanes_data_from_file()
+    assert saver._airplanes_data == {}
+
+
+def test_get_airplane_invalid_id_type(tmp_path):
+    """Тест, что JSONSaver возвращает None при передаче некорректного типа airplane_id."""
+    file_path = tmp_path / "test.json"
+    with open(file_path, "w") as f:
+        f.write("{}")
+
+    saver = JSONSaver(str(file_path.name))
+    saver._file_path = file_path
+
+    result = saver.get_airplane(123)
+    assert result is None
+
+
+def test_is_airplane_in_empty_dataset(tmp_path):
+    """Тест, что при пустом датасете самолёт не находится."""
+    saver = JSONSaver("test.json")
+    saver._airplanes_data = {}
+
+    result = saver._is_airplane_in_dataset("abc123")
+
+    assert result is False

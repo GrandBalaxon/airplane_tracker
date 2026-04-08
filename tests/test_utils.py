@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock
 
-from src.utils import filter_airplanes, generate_filename, get_airplanes_by_altitude, sort_airplanes, get_top_airplanes, \
-    print_airplanes, create_saver, save_airplanes
+from src.utils import (create_saver, filter_airplanes, generate_filename, get_airplanes_by_altitude, get_top_airplanes,
+                       print_airplanes, save_airplanes, sort_airplanes)
 
 
 def test_filter_airplanes(sample_airplanes):
@@ -33,9 +33,6 @@ def test_get_airplanes_by_altitude(sample_airplanes):
     ids = [plane.airplane_id for plane in result]
 
     assert ids == ["p1", "p3"]
-
-
-
 
 
 def test_get_airplanes_by_altitude_invalid_range(sample_airplanes):
@@ -98,3 +95,12 @@ def test_save_airplanes_calls_add(sample_airplanes):
     save_airplanes(mock_saver, sample_airplanes)
 
     assert mock_saver.add_airplane.call_count == len(sample_airplanes)
+
+
+def test_get_airplanes_by_altitude_empty_range(sample_airplanes):
+    """Тест, что при отсутствии диапазона высот возвращается исходный список самолётов."""
+    airplanes = [sample_airplanes[0], sample_airplanes[1]]
+
+    result = get_airplanes_by_altitude(airplanes, "")
+
+    assert result == airplanes
