@@ -26,6 +26,21 @@ class JSONSaver(BaseFileSaver):
         self._airplanes_data = {}
         self._initialize_file()
 
+    def _get_airplanes_data_from_file(self) -> None:
+        """Метод для извлечения данных о самолётах из прикрепленного к объекту класса файла."""
+        try:
+            if self._file_path.suffix == ".json":
+                logger.debug("Идёт работа с JSON-файлом.")
+                with open(self._file_path, "r") as file:
+                    self._airplanes_data = json.load(file)
+
+            logger.info(f"Из файла выгружены данные о {len(self._airplanes_data)} самолётах.")
+            logger.debug(self._airplanes_data)
+
+        except Exception as e:
+            logger.error(f"Непредвиденная ошибка: {e}")
+            raise
+
     def _initialize_file(self) -> None:
         """Метод для проверки существования JSON-файла и его инициализации при отсутствии."""
         if not self._file_path.exists():

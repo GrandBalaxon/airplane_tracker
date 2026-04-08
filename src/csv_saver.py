@@ -26,6 +26,34 @@ class CSVSaver(BaseFileSaver):
         self._airplanes_data = {}
         self._initialize_file()
 
+    def _get_airplanes_data_from_file(self) -> None:
+        """Метод для извлечения данных о самолётах из прикрепленного к объекту класса файла."""
+        try:
+            if self._file_path.suffix == ".csv":
+                logger.debug("Идёт работа с CSV-файлом.")
+
+                with open(self._file_path, "r") as file:
+                    dict_reader = csv.DictReader(file)
+                    for data in dict_reader:
+
+                        airplane_id = data["airplane_id"]
+                        country = data["country"]
+                        on_ground = True if "true" in data["on_ground"].lower() else False
+                        geo_altitude = float(data["geo_altitude"])
+                        velocity = float(data["velocity"])
+
+                        airplane = Airplane(airplane_id, country, on_ground, velocity, geo_altitude)
+                        self._add_airplane_to_dataset(airplane)
+
+                        logger.debug(f"Добавлена информация о {airplane.airplane_id} в датасет.")
+
+            logger.info(f"Из файла выгружены данные о {len(self._airplanes_data)} самолётах.")
+            logger.debug(self._airplanes_data)
+
+        except Exception as e:
+            logger.error(f"Непредвиденная ошибка: {e}")
+            raise
+
     def _initialize_file(self) -> None:
         """Метод для проверки существования CSV-файла и его инициализации при отсутствии."""
         if not self._file_path.exists():

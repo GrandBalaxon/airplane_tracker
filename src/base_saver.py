@@ -1,5 +1,3 @@
-import csv
-import json
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -21,6 +19,31 @@ class BaseFileSaver(ABC):
     _file_path: Path
     _airplanes_data: dict[str, dict[str, Any]]
 
+    @abstractmethod
+    def _get_airplanes_data_from_file(self) -> None:
+        """Абстрактный метод для извлечения данных о самолётах из прикрепленного к объекту класса файла."""
+        pass
+
+    @abstractmethod
+    def _initialize_file(self) -> None:
+        """Абстрактный метод для проверки существования файла и его инициализации при отсутствии."""
+        pass
+
+    @abstractmethod
+    def add_airplane(self, airplane: "Airplane") -> None:
+        """Абстрактный метод добавления информации о самолёте в файл."""
+        pass
+
+    @abstractmethod
+    def delete_airplane(self, airplane: "Airplane") -> None:
+        """Абстрактный метод удаления информации о самолёте из файла."""
+        pass
+
+    @abstractmethod
+    def get_airplane(self, airplane_id: str) -> "Airplane | None":
+        """Абстрактный метод получения информации о самолёте из файла."""
+        pass
+
     def _add_airplane_to_dataset(self, airplane: "Airplane") -> None:
         """Метод для добавления данных в датасет экземпляра класса."""
         id_key = airplane.airplane_id
@@ -35,46 +58,6 @@ class BaseFileSaver(ABC):
     def _delete_airplane_from_dataset(self, id_key: str) -> None:
         """Метод удаления данных о самолёте из датасета."""
         del self._airplanes_data[id_key]
-
-    def _get_airplanes_data_from_file(self) -> None:
-        """Метод для извлечения данных о самолётах из прикрепленного к объекту класса файла."""
-        try:
-            # Если идёт работа с JSON-файлом
-            if self._file_path.suffix == ".json":
-                logger.debug("Идёт работа с JSON-файлом.")
-                with open(self._file_path, "r") as file:
-                    self._airplanes_data = json.load(file)
-
-            # Если идёт работа с CSV-файлом
-            if self._file_path.suffix == ".csv":
-                logger.debug("Идёт работа с CSV-файлом.")
-
-                with open(self._file_path, "r") as file:
-                    dict_reader = csv.DictReader(file)
-                    for data in dict_reader:
-
-                        airplane_id = data["airplane_id"]
-                        country = data["country"]
-                        on_ground = True if "true" in data["on_ground"].lower() else False
-                        geo_altitude = float(data["geo_altitude"])
-                        velocity = float(data["velocity"])
-
-                        airplane = Airplane(airplane_id, country, on_ground, velocity, geo_altitude)
-                        self._add_airplane_to_dataset(airplane)
-
-                        logger.debug(f"Добавлена информация о {airplane.airplane_id} в датасет.")
-
-            logger.info(f"Из файла выгружены данные о {len(self._airplanes_data)} самолётах.")
-            logger.debug(self._airplanes_data)
-
-        except Exception as e:
-            logger.error(f"Непредвиденная ошибка: {e}")
-            raise
-
-    @abstractmethod
-    def _initialize_file(self) -> None:
-        """Абстрактный метод для проверки существования файла и его инициализации при отсутствии."""
-        pass
 
     def _get_path(self) -> Path:
         """Метод для получения PATH к рабочему файлу."""
@@ -126,21 +109,6 @@ class BaseFileSaver(ABC):
         except Exception as e:
             logger.error(f"Непредвиденная ошибка: {e}")
             raise
-
-    @abstractmethod
-    def add_airplane(self, airplane: "Airplane") -> None:
-        """Абстрактный метод добавления информации о самолёте в файл."""
-        pass
-
-    @abstractmethod
-    def delete_airplane(self, airplane: "Airplane") -> None:
-        """Абстрактный метод удаления информации о самолёте из файла."""
-        pass
-
-    @abstractmethod
-    def get_airplane(self, airplane_id: str) -> "Airplane | None":
-        """Абстрактный метод получения информации о самолёте из файла."""
-        pass
 
     def get_airplanes_amount(self) -> int:
         """Геттер выдающий текущее количество самолетов в датасете/файле экземпляра класса."""
