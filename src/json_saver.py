@@ -1,5 +1,6 @@
 import json
 import logging
+from json import JSONDecodeError
 from pathlib import Path
 from typing import Any
 
@@ -27,13 +28,16 @@ class JSONSaver(BaseFileSaver):
         self._initialize_file()
 
     def _get_airplanes_data_from_file(self) -> None:
-        """Метод для извлечения данных о самолётах из прикрепленного к объекту класса файла."""
+        """Метод для извлечения данных о самолётах из прикрепленного к объекту класса JSON-файла."""
         try:
             with open(self._file_path, "r") as file:
                 self._airplanes_data = json.load(file)
 
             logger.info(f"Из файла выгружены данные о {self.get_airplanes_amount()} самолётах.")
 
+        except JSONDecodeError as e:
+            logger.warning(f"Ошибка декодирования JSON ({self._file_path.name}): {e}. Используется пустой датасет.")
+            self._airplanes_data = {}
         except Exception as e:
             logger.error(f"Непредвиденная ошибка: {e}")
             raise
