@@ -54,18 +54,17 @@ def test_csv_saver_loads_existing_file(tmp_path):
     """Тест, что CSVSaver загружает данные из существующего CSV файла."""
     file_path = tmp_path / "test.csv"
     with open(file_path, "w", newline="") as f:
-        writer = csv.DictWriter(
-            f,
-            fieldnames=["airplane_id", "country", "on_ground", "velocity", "geo_altitude"]
-        )
+        writer = csv.DictWriter(f, fieldnames=["airplane_id", "country", "on_ground", "velocity", "geo_altitude"])
         writer.writeheader()
-        writer.writerow({
-            "airplane_id": "p1",
-            "country": "USA",
-            "on_ground": "False",
-            "velocity": "200.0",
-            "geo_altitude": "1000.0",
-        })
+        writer.writerow(
+            {
+                "airplane_id": "p1",
+                "country": "USA",
+                "on_ground": "False",
+                "velocity": "200.0",
+                "geo_altitude": "1000.0",
+            }
+        )
 
     saver = CSVSaver(str(file_path))
     result = saver.get_airplane("p1")
@@ -78,18 +77,17 @@ def test_csv_type_conversion(tmp_path):
     """Тест, что CSV корректно преобразует типы (str -> float/bool)."""
     file_path = tmp_path / "test.csv"
     with open(file_path, "w", newline="") as f:
-        writer = csv.DictWriter(
-            f,
-            fieldnames=["airplane_id", "country", "on_ground", "velocity", "geo_altitude"]
-        )
+        writer = csv.DictWriter(f, fieldnames=["airplane_id", "country", "on_ground", "velocity", "geo_altitude"])
         writer.writeheader()
-        writer.writerow({
-            "airplane_id": "p1",
-            "country": "USA",
-            "on_ground": "true",
-            "velocity": "300.5",
-            "geo_altitude": "1500.5",
-        })
+        writer.writerow(
+            {
+                "airplane_id": "p1",
+                "country": "USA",
+                "on_ground": "true",
+                "velocity": "300.5",
+                "geo_altitude": "1500.5",
+            }
+        )
 
     saver = CSVSaver(str(file_path))
     plane = saver.get_airplane("p1")
@@ -97,3 +95,16 @@ def test_csv_type_conversion(tmp_path):
     assert isinstance(plane.velocity, float)
     assert isinstance(plane.geo_altitude, float)
     assert plane.on_ground is True
+
+
+def test_get_airplane_invalid_id_type_csv(tmp_path):
+    """Тест, что CSVSaver возвращает None при передаче некорректного типа airplane_id."""
+    file_path = tmp_path / "test.csv"
+    with open(file_path, "w", newline="") as f:
+        f.write("airplane_id,country,on_ground,velocity,geo_altitude\n")
+
+    saver = CSVSaver(str(file_path.name))
+    saver._file_path = file_path
+
+    result = saver.get_airplane(123)
+    assert result is None

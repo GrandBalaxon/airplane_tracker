@@ -1,3 +1,5 @@
+import pytest
+
 from src.airplane import Airplane
 
 
@@ -65,7 +67,26 @@ def test_airplane_str_and_repr_exact():
     plane = Airplane("id1", "USA", False, 200.0, 1000.0)
 
     assert repr(plane) == (
-        "Airplane (icao_id = id1, country = USA, "
-        "on_ground = False, velocity = 200.0, geo_altitude = 1000.0)"
+        "Airplane (icao_id = id1, country = USA, " "on_ground = False, velocity = 200.0, geo_altitude = 1000.0)"
     )
     assert str(plane) == "Борт id1 - USA (Скорость: 200.0 м/c, Высота: 1000.0 м)"
+
+
+def test_validate_on_ground_true_string():
+    """Тест, что строка 'true' корректно преобразуется в True."""
+    airplane = Airplane("id1", "USA", "true", 200, 10000)
+
+    assert airplane.on_ground is True
+
+
+def test_validate_on_ground_false_string():
+    """Тест, что строка 'false' корректно преобразуется в False."""
+    airplane = Airplane("id1", "USA", "false", 200, 10000)
+
+    assert airplane.on_ground is False
+
+
+def test_validate_on_ground_invalid_string():
+    """Тест, что некорректная строка вызывает ValueError."""
+    with pytest.raises(ValueError, match="Флаг 'on_ground' должен быть True/False, получено: yes"):
+        Airplane("id1", "USA", "yes", 200, 10000)

@@ -1,6 +1,8 @@
 import logging
 from typing import Any, cast
 
+import requests
+
 from .base_api import BaseAPIClient
 
 logger = logging.getLogger("api")
@@ -11,6 +13,23 @@ class AirplanesAPI(BaseAPIClient):
     def __init__(self) -> None:
         self._nominatim_url = "https://nominatim.openstreetmap.org/search"
         self._opensky_url = "https://opensky-network.org/api/states/all?"
+
+    @staticmethod
+    def _make_request(
+        url: str,
+        params: dict[str, Any] | None = None,
+        headers: dict[str, Any] | None = None,
+    ) -> Any:
+        """
+        Выполняет GET-запрос к указанному URL с параметрами и заголовками.
+        Проверяет статус ответа и возвращает декодированный JSON.
+        В случае ошибки выбрасывает исключение.
+        """
+        response = requests.get(url, params=params, headers=headers)
+        if response.status_code != 200:
+            raise Exception(f"Ошибка подключения: {response.status_code} - {response.text}")
+
+        return cast(dict[str, Any], response.json())
 
     def _get_country_bbox(self, country: str) -> list[str]:
         """Приватный метод: получает bounding box страны через Nominatim."""

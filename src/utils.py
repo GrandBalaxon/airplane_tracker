@@ -4,8 +4,6 @@ from datetime import datetime
 
 from src.airplane import Airplane
 from src.base_saver import BaseFileSaver
-from src.csv_saver import CSVSaver
-from src.json_saver import JSONSaver
 
 logger = logging.getLogger("utils")
 
@@ -94,11 +92,7 @@ def get_airplanes_by_altitude(airplanes: list[Airplane], altitude_range: str) ->
 def sort_airplanes(airplanes: list[Airplane]) -> list[Airplane]:
     """Функция для сортировки самолётов по высоте."""
     try:
-        sorted_aeroplanes = sorted(
-            airplanes,
-            key=lambda x: (x.geo_altitude, x.velocity),
-            reverse=True
-        )
+        sorted_aeroplanes = sorted(airplanes, key=lambda x: (x.geo_altitude, x.velocity), reverse=True)
         return sorted_aeroplanes
 
     except Exception as e:
