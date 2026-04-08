@@ -29,26 +29,22 @@ class CSVSaver(BaseFileSaver):
     def _get_airplanes_data_from_file(self) -> None:
         """Метод для извлечения данных о самолётах из прикрепленного к объекту класса файла."""
         try:
-            if self._file_path.suffix == ".csv":
-                logger.debug("Идёт работа с CSV-файлом.")
+            with open(self._file_path, "r") as file:
+                dict_reader = csv.DictReader(file)
+                for data in dict_reader:
 
-                with open(self._file_path, "r") as file:
-                    dict_reader = csv.DictReader(file)
-                    for data in dict_reader:
+                    airplane_id = data["airplane_id"]
+                    country = data["country"]
+                    on_ground = True if "true" in data["on_ground"].lower() else False
+                    geo_altitude = float(data["geo_altitude"])
+                    velocity = float(data["velocity"])
 
-                        airplane_id = data["airplane_id"]
-                        country = data["country"]
-                        on_ground = True if "true" in data["on_ground"].lower() else False
-                        geo_altitude = float(data["geo_altitude"])
-                        velocity = float(data["velocity"])
+                    airplane = Airplane(airplane_id, country, on_ground, velocity, geo_altitude)
+                    self._add_airplane_to_dataset(airplane)
 
-                        airplane = Airplane(airplane_id, country, on_ground, velocity, geo_altitude)
-                        self._add_airplane_to_dataset(airplane)
+                    logger.debug(f"Добавлена информация о {airplane.airplane_id} в датасет.")
 
-                        logger.debug(f"Добавлена информация о {airplane.airplane_id} в датасет.")
-
-            logger.info(f"Из файла выгружены данные о {len(self._airplanes_data)} самолётах.")
-            logger.debug(self._airplanes_data)
+            logger.info(f"Из файла выгружены данные о {self.get_airplanes_amount()} самолётах.")
 
         except Exception as e:
             logger.error(f"Непредвиденная ошибка: {e}")
@@ -59,13 +55,12 @@ class CSVSaver(BaseFileSaver):
         if not self._file_path.exists():
             logger.info(f"Файл по пути {self._file_path} не найден. Создаем CSV-файл с заголовками.")
             try:
-                if self._file_path.suffix == ".csv":
-                    with open(self._file_path, "w", newline="") as file:
-                        fieldnames = ["airplane_id", "country", "on_ground", "velocity", "geo_altitude"]
-                        writer = csv.DictWriter(file, fieldnames=fieldnames)
-                        writer.writeheader()
+                with open(self._file_path, "w", newline="") as file:
+                    fieldnames = ["airplane_id", "country", "on_ground", "velocity", "geo_altitude"]
+                    writer = csv.DictWriter(file, fieldnames=fieldnames)
+                    writer.writeheader()
 
-                logger.info(f"Создан файл {self._file_path.name} с пустым словарем.")
+                logger.info(f"Создан CSV-файл {self._file_path.name} с заголовками.")
 
             except Exception as e:
                 logger.error(f"Ошибка при создании файла: {e}")

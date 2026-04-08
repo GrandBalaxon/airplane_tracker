@@ -30,6 +30,11 @@ class BaseFileSaver(ABC):
         pass
 
     @abstractmethod
+    def _write_airplanes_data_to_file(self) -> None:
+        """Абстрактный метод для внесения всех текущих данных из датасета в файл."""
+        pass
+
+    @abstractmethod
     def add_airplane(self, airplane: "Airplane") -> None:
         """Абстрактный метод добавления информации о самолёте в файл."""
         pass
@@ -43,21 +48,6 @@ class BaseFileSaver(ABC):
     def get_airplane(self, airplane_id: str) -> "Airplane | None":
         """Абстрактный метод получения информации о самолёте из файла."""
         pass
-
-    def _add_airplane_to_dataset(self, airplane: "Airplane") -> None:
-        """Метод для добавления данных в датасет экземпляра класса."""
-        id_key = airplane.airplane_id
-        airplane_data = {
-            "country": airplane.country,
-            "on_ground": airplane.on_ground,
-            "geo_altitude": airplane.geo_altitude,
-            "velocity": airplane.velocity,
-        }
-        self._airplanes_data[id_key] = airplane_data
-
-    def _delete_airplane_from_dataset(self, id_key: str) -> None:
-        """Метод удаления данных о самолёте из датасета."""
-        del self._airplanes_data[id_key]
 
     def _get_path(self) -> Path:
         """Метод для получения PATH к рабочему файлу."""
@@ -109,6 +99,21 @@ class BaseFileSaver(ABC):
         except Exception as e:
             logger.error(f"Непредвиденная ошибка: {e}")
             raise
+
+    def _add_airplane_to_dataset(self, airplane: "Airplane") -> None:
+        """Метод для добавления данных в датасет экземпляра класса."""
+        id_key = airplane.airplane_id
+        airplane_data = {
+            "country": airplane.country,
+            "on_ground": airplane.on_ground,
+            "geo_altitude": airplane.geo_altitude,
+            "velocity": airplane.velocity,
+        }
+        self._airplanes_data[id_key] = airplane_data
+
+    def _delete_airplane_from_dataset(self, id_key: str) -> None:
+        """Метод удаления данных о самолёте из датасета."""
+        del self._airplanes_data[id_key]
 
     def get_airplanes_amount(self) -> int:
         """Геттер выдающий текущее количество самолетов в датасете/файле экземпляра класса."""
