@@ -1,14 +1,17 @@
 import logging
 import re
 from datetime import datetime
+from typing import Type
 
 from src.airplane import Airplane
-from src.base_saver import BaseFileSaver
+from src.airplane_service import AirplaneService
+from src.file_storage import FileStorage
 
 logger = logging.getLogger("utils")
 
 
 def generate_filename(country: str, extension: str) -> str:
+    """Генерация имени файла."""
     now = datetime.now()
     return (
         f"{country}_"
@@ -18,116 +21,80 @@ def generate_filename(country: str, extension: str) -> str:
     )
 
 
-def create_saver(saver_class: type, file_name: str) -> BaseFileSaver:
-    """Создаёт и возвращает экземпляр saver."""
+def create_saver(saver_class: Type[FileStorage], file_name: str) -> FileStorage:
+    """Создаёт экземпляр saver."""
     return saver_class(file_name)
 
 
-def save_airplanes(saver: BaseFileSaver, airplanes: list[Airplane]) -> None:
-    """Сохраняет список самолётов в saver."""
-    for airplane in airplanes:
-        saver.add_airplane(airplane)
+def save_airplanes(saver: FileStorage, airplanes: list[Airplane]) -> None:
+    """Сохраняет список самолётов через сервис."""
+    service = AirplaneService(saver)
 
-    logger.info(f"Добавлено {saver.get_airplanes_amount()} самолётов в файл.")
+    for airplane in airplanes:
+        service.add_airplane(airplane)
+
+    logger.info(f"Сохранено {service.get_airplanes_amount()} самолётов.")
+
+
+def _parse_countries(filter_words: str) -> list[str]:
+    """Парсит строку стран в список."""
+    return [word.strip().lower() for word in filter_words.split(",") if word.strip()]
 
 
 def filter_airplanes(airplanes: list[Airplane], filter_words: str) -> list[Airplane]:
-    """Функция для фильтрации списка объектов класса Airplane по стране регистрации.
+    """Фильтрация по странам."""
+    if not filter_words:
+        logger.info("Фильтр стран не задан.")
+        return airplanes
 
-    Args:
-        airplanes (list[Airplane]): Список объектов класса Airplanes
-        filter_words (list[str]): Список стран для фильтрации
-    """
-    try:
-        if filter_words:
-            logger.info(f"Список фильтрации: {filter_words}.")
-            country_list = [x.strip().lower() for x in filter_words.split(",")]
+    countries = _parse_countries(filter_words)
+    logger.info(f"Фильтрация по странам: {countries}")
 
-            filtered_list = [plane for plane in airplanes if plane.country.lower().strip() in country_list]
+    return [plane for plane in airplanes if plane.country and plane.country.lower().strip() in countries]
 
-            logger.info(f"Отфильтровано по странам {len(filtered_list)} самолётов.")
-            for country in country_list:
-                logger.info(
-                    f"{country.title()}: {len([x for x in filtered_list if x.country.lower().strip() == country])}."
-                )
 
-            return filtered_list
-        else:
-            logger.info("Не указано стран для фильтрации списка.")
-            return airplanes
-
-    except Exception as e:
-        logger.error(f"Возникла ошибка: {e}")
-        raise
+def _parse_altitude_range(altitude_range: str) -> tuple[int, int] | None:
+    """Парсит диапазон высот."""
+    numbers = list(map(int, re.findall(r"\d+", altitude_range)))
+    return (numbers[0], numbers[1]) if len(numbers) == 2 else None
 
 
 def get_airplanes_by_altitude(airplanes: list[Airplane], altitude_range: str) -> list[Airplane]:
-    """Функция для фильтрации списка объектов класса Airplane по геометрической высоте.
+    """Фильтрация по высоте."""
+    if not altitude_range:
+        logger.info("Диапазон высот не задан.")
+        return airplanes
 
-    Args:
-        airplanes (list[Airplane]): Список объектов класса Airplanes
-        altitude_range (str): Перепад геометрических высок для фильтрации (Пример: 100000 - 150000)
-    """
-    try:
-        if altitude_range:
-            alt_range_cleaned = list(map(int, re.findall(r"\d+", altitude_range)))
-            if len(alt_range_cleaned) == 2:
-                logger.info(f"Высоты для фильтрации: {alt_range_cleaned[0]} - {alt_range_cleaned[1]}.")
-                filtered_list = [
-                    plane for plane in airplanes if alt_range_cleaned[0] <= plane.geo_altitude <= alt_range_cleaned[1]
-                ]
-                return filtered_list
-            else:
-                logger.warning(f"Неверно указан диапазон высот: {altitude_range}.")
-                return airplanes
-        else:
-            logger.info(f"Не был указан диапазон высот.")
-            return airplanes
+    parsed = _parse_altitude_range(altitude_range)
+    if not parsed:
+        logger.warning(f"Некорректный диапазон высот: {altitude_range}")
+        return airplanes
 
-    except Exception as e:
-        logger.error(f"Возникла ошибка: {e}")
-        raise
+    min_alt, max_alt = parsed
+    logger.info(f"Фильтрация по высоте: {min_alt} - {max_alt}")
+
+    return [
+        plane for plane in airplanes if plane.geo_altitude is not None and min_alt <= plane.geo_altitude <= max_alt
+    ]
 
 
 def sort_airplanes(airplanes: list[Airplane]) -> list[Airplane]:
-    """Функция для сортировки самолётов по высоте."""
-    try:
-        sorted_aeroplanes = sorted(airplanes, key=lambda x: (x.geo_altitude, x.velocity), reverse=True)
-        return sorted_aeroplanes
-
-    except Exception as e:
-        logger.error(f"Возникла ошибка: {e}")
-        return airplanes
+    """Сортировка по высоте и скорости."""
+    return sorted(airplanes, key=lambda x: (x.geo_altitude or 0, x.velocity or 0), reverse=True)
 
 
 def get_top_airplanes(airplanes: list[Airplane], top_n: int) -> list[Airplane]:
-    """Функция выдаёт N самолётов из списка.
-
-    Args:
-        airplanes (list[Airplane]): Список объектов класса Airplanes
-        top_n (int): Число N - количество выдаваемых функцией позиций самолётов
-    """
-    try:
-        if isinstance(top_n, int) and top_n != 0:
-            top_list = airplanes[:top_n]
-            logger.info(f"Отсеяно топ {top_n} самолётов.")
-            return top_list
-        else:
-            logger.warning("Не указано число N.")
-            return airplanes
-
-    except Exception as e:
-        logger.error(f"Возникла ошибка: {e}")
+    """Возвращает топ N самолётов."""
+    if not isinstance(top_n, int) or top_n <= 0:
+        logger.info("Топ N не задан.")
         return airplanes
+
+    logger.info(f"Возвращаем топ {top_n} самолётов.")
+    return airplanes[:top_n]
 
 
 def print_airplanes(airplanes: list[Airplane]) -> None:
-    """Функция для вывода списка самолётов на экран."""
-    try:
-        print("\nФинальный список самолётов:")
-        for airplane in airplanes:
-            print(airplane)
-
-    except Exception as e:
-        logger.error(f"Возникла ошибка: {e}")
-        raise
+    """Вывод самолётов."""
+    print("\nФинальный список самолётов:")
+    for airplane in airplanes:
+        print(airplane)
