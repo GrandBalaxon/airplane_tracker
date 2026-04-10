@@ -5,7 +5,12 @@ from src.base_storage import BaseStorage
 
 
 class FileStorage(BaseStorage, ABC):
-    """Абстрактный базовый класс для сохранения в различные типы файлов."""
+    """Абстрактный базовый класс для сохранения в различные типы файлов.
+
+    Attributes:
+        _file_name (str): Имя файла-хранилища экземпляра класса.
+        _file_path (Path): PATH к рабочему файлу-хранилищу экземпляра класса.
+    """
 
     _file_extension = ""
 

@@ -1,6 +1,8 @@
 import csv
 import logging
 from pathlib import Path
+from typing import Any
+from unittest import result
 
 from src.airplane import Airplane
 from src.file_storage import FileStorage
@@ -12,9 +14,8 @@ class CSVStorage(FileStorage):
     """Класс для сохранения информации о самолётах в CSV-файл.
 
     Attributes:
-        _file_name (str): Имя CSV-файла экземпляра класса.
-        _file_path (Path): PATH к рабочему файлу экземпляра класса.
-        _airplanes_data (dict): Датасет с данными о всех текущих самолётах в файле экземпляра класса.
+        _file_name (str): Имя CSV-файла-хранилища экземпляра класса.
+        _file_path (Path): PATH к рабочему CSV-файлу-хранилищу экземпляра класса.
     """
 
     _file_extension = ".csv"
@@ -22,28 +23,24 @@ class CSVStorage(FileStorage):
     def __init__(self, file_name: str = "airplanes_data.csv") -> None:
         self._file_name = file_name
         self._file_path: Path = self._get_path()
-        self._airplanes_data = {}
         self._initialize_file()
 
-    def load(self) -> None:
-        """Метод для извлечения данных о самолётах из прикрепленного к объекту класса файла."""
+    def load(self) -> dict[str, Any]:
+        """Метод для загрузки данных о самолётах из прикрепленного к объекту класса CSV-файла."""
         try:
             with open(self._file_path, "r") as file:
                 dict_reader = csv.DictReader(file)
+                result = {}
                 for data in dict_reader:
+                    result[data["airplane_id"]] = {
+                        "country": data["country"],
+                        "on_ground": True if "true" in data["on_ground"].lower() else False,
+                        "velocity": float(data["velocity"]),
+                        "geo_altitude": float(data["geo_altitude"]),
+                    }
 
-                    airplane_id = data["airplane_id"]
-                    country = data["country"]
-                    on_ground = True if "true" in data["on_ground"].lower() else False
-                    geo_altitude = float(data["geo_altitude"])
-                    velocity = float(data["velocity"])
-
-                    airplane = Airplane(airplane_id, country, on_ground, velocity, geo_altitude)
-                    self._add_airplane_to_dataset(airplane)
-
-                    logger.debug(f"Добавлена информация о {airplane.airplane_id} в датасет.")
-
-            logger.info(f"Из файла выгружены данные о {self.get_airplanes_amount()} самолётах.")
+                logger.debug(f"Из файла выгружены данные.")
+                return result
 
         except Exception as e:
             logger.error(f"Непредвиденная ошибка: {e}")

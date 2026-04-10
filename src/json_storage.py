@@ -2,6 +2,7 @@ import json
 import logging
 from json import JSONDecodeError
 from pathlib import Path
+from typing import Any
 
 from src.file_storage import FileStorage
 
@@ -12,9 +13,8 @@ class JSONStorage(FileStorage):
     """Класс для сохранения информации о самолётах в JSON-файл.
 
     Attributes:
-        _file_name (str): Имя JSON-файла экземпляра класса.
-        _file_path (Path): PATH к рабочему файлу экземпляра класса.
-        _airplanes_data (dict): Датасет с данными о всех текущих самолётах в файле экземпляра класса.
+        _file_name (str): Имя JSON-файла-хранилища экземпляра класса.
+        _file_path (Path): PATH к рабочему JSON-файлу-хранилищу экземпляра класса.
     """
 
     _file_extension = ".json"
@@ -22,20 +22,21 @@ class JSONStorage(FileStorage):
     def __init__(self, file_name: str = "airplanes_data.json"):
         self._file_name = file_name
         self._file_path: Path = self._get_path()
-        self._airplanes_data = {}
         self._initialize_file()
 
-    def load(self) -> None:
+    def load(self) -> dict[str, Any]:
         """Метод для загрузки данных о самолётах из прикрепленного к объекту класса JSON-файла."""
         try:
             with open(self._file_path, "r") as file:
-                self._airplanes_data = json.load(file)
+                result = json.load(file)
+                logger.info(f"Из файла выгружены данные.")
 
-            logger.info(f"Из файла выгружены данные о {self.get_airplanes_amount()} самолётах.")
+                return result
 
         except JSONDecodeError as e:
             logger.warning(f"Ошибка декодирования JSON ({self._file_path.name}): {e}. Используется пустой датасет.")
-            self._airplanes_data = {}
+            result = {}
+            return result
         except Exception as e:
             logger.error(f"Непредвиденная ошибка: {e}")
             raise
