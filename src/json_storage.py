@@ -58,7 +58,7 @@ class JSONStorage(FileStorage):
             logger.info(f"Файл уже существует: {self._file_path}.")
             self.load()
 
-    def save(self) -> None:
+    def save(self, data: dict[str, Any]) -> None:
         """Приватный метод для внесения всех текущих данных из датасета в JSON-файл."""
         with open(self._file_path, mode="w") as file:
-            json.dump(self._airplanes_data, file, indent=4)
+            json.dump(data, file, indent=4)

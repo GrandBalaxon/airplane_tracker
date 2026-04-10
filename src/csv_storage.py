@@ -2,9 +2,7 @@ import csv
 import logging
 from pathlib import Path
 from typing import Any
-from unittest import result
 
-from src.airplane import Airplane
 from src.file_storage import FileStorage
 
 logger = logging.getLogger("csv_storage")
@@ -63,19 +61,19 @@ class CSVStorage(FileStorage):
                 raise
         else:
             logger.info(f"Файл уже существует: {self._file_path}.")
-            self._get_airplanes_data_from_file()
+            self.load()
 
-    def save(self) -> None:
+    def save(self, data: dict[str, Any]) -> None:
         """Приватный метод для внесения всех текущих данных из датасета в CSV-файл."""
         rows = []
-        for airplane_id, data in self._airplanes_data.items():
+        for airplane_id, airplane_data in data.items():
             rows.append(
                 {
                     "airplane_id": airplane_id,
-                    "country": data["country"],
-                    "on_ground": data["on_ground"],
-                    "velocity": data["velocity"],
-                    "geo_altitude": data["geo_altitude"],
+                    "country": airplane_data["country"],
+                    "on_ground": airplane_data["on_ground"],
+                    "velocity": airplane_data["velocity"],
+                    "geo_altitude": airplane_data["geo_altitude"],
                 }
             )
 
