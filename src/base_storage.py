@@ -3,7 +3,7 @@ from typing import Any
 
 
 class BaseStorage(ABC):
-    """Абстрактный базовый класс для сохранения в различные типы файлов."""
+    """Абстрактный базовый класс для работы с различными типами хранилищ."""
 
     @abstractmethod
     def load(self) -> dict[str, Any]:
