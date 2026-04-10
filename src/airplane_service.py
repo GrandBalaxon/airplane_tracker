@@ -27,7 +27,7 @@ class AirplaneService:
 
         return airplane_id in self._airplanes_data
 
-    def _is_same_airplane(self, airplane: Airplane) -> bool:
+    def _is_same_airplane_data(self, airplane: Airplane) -> bool:
         """Проверка полного совпадения данных самолёта."""
         airplane_id = airplane.airplane_id
 
@@ -55,7 +55,7 @@ class AirplaneService:
                 return self._airplane_exists(airplane)
 
             elif isinstance(airplane, Airplane):
-                return self._is_same_airplane(airplane)
+                return self._is_same_airplane_data(airplane)
 
             else:
                 raise TypeError(

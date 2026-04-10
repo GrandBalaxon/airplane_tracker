@@ -33,7 +33,7 @@ class CSVStorage(FileStorage):
                 for data in dict_reader:
                     result[data["airplane_id"]] = {
                         "country": data["country"],
-                        "on_ground": True if "true" in data["on_ground"].lower() else False,
+                        "on_ground": True if data["on_ground"].lower() == "true" else False,
                         "velocity": float(data["velocity"]),
                         "geo_altitude": float(data["geo_altitude"]),
                     }
