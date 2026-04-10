@@ -1,7 +1,7 @@
 import json
 
 from src.airplane import Airplane
-from src.json_saver import JSONStorage
+from src.json_storage import JSONStorage
 
 
 def test_json_saver_add_and_get(tmp_path):

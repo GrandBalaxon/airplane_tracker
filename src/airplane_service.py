@@ -1,60 +1,16 @@
 import logging
-from abc import ABC, abstractmethod
-from pathlib import Path
 from typing import Any
 
 from src.airplane import Airplane
+from src.base_storage import BaseStorage
 
-logger = logging.getLogger("base_saver")
 
+logger = logging.getLogger("airplane_service")
 
-class BaseStorage(ABC):
-    """Абстрактный базовый класс для сохранения в различные типы файлов."""
-
-    _file_extension = ""
-
-    __slots__ = ["_file_name", "_file_path", "_airplanes_data"]
-
-    _file_name: str
-    _file_path: Path
-    _airplanes_data: dict[str, dict[str, Any]]
-
-    @abstractmethod
-    def _get_airplanes_data_from_file(self) -> None:
-        """Абстрактный метод для извлечения данных о самолётах из прикрепленного к объекту класса файла."""
-        pass
-
-    @abstractmethod
-    def _initialize_file(self) -> None:
-        """Абстрактный метод для проверки существования файла и его инициализации при отсутствии."""
-        pass
-
-    @abstractmethod
-    def _write_airplanes_data_to_file(self) -> None:
-        """Абстрактный метод для внесения всех текущих данных из датасета в файл."""
-        pass
-
-    @abstractmethod
-    def add_airplane(self, airplane: "Airplane") -> None:
-        """Абстрактный метод добавления информации о самолёте в файл."""
-        pass
-
-    @abstractmethod
-    def delete_airplane(self, airplane: "Airplane") -> None:
-        """Абстрактный метод удаления информации о самолёте из файла."""
-        pass
-
-    @abstractmethod
-    def get_airplane(self, airplane_id: str) -> "Airplane | None":
-        """Абстрактный метод получения информации о самолёте из файла."""
-        pass
-
-    def _get_path(self) -> Path:
-        """Метод для получения PATH к рабочему файлу."""
-        if self._file_name.endswith(self.__class__._file_extension):
-            return Path(__file__).parent.parent / "data" / self._file_name
-        else:
-            return Path(__file__).parent.parent / "data" / f"{self._file_name}{self.__class__._file_extension}"
+class AirplaneService:
+    def __init__(self, storage: BaseStorage):
+        self._storage = storage
+        self._airplanes_data = storage.load()
 
     def _is_airplane_in_dataset(self, airplane: "Airplane | str") -> bool | None:
         """
@@ -121,3 +77,66 @@ class BaseStorage(ABC):
             return len(self._airplanes_data)
         else:
             return 0
+
+    def add_airplane(self, airplane: "Airplane") -> None:
+        """Метод добавления информации о самолёте в JSON-файл."""
+        try:
+            if self._is_airplane_in_dataset(airplane):
+                logger.info(f"Данные о борте {airplane.airplane_id} уже записаны.")
+            else:
+                self._add_airplane_to_dataset(airplane)
+                self._write_airplanes_data_to_file()
+
+                logger.debug(f"Данные о борте {airplane.airplane_id} записаны в файл.")
+
+        except Exception as e:
+            logger.error(f"Возникла ошибка: {e}")
+            raise
+
+    def delete_airplane(self, airplane: "Airplane | str") -> None:
+        """Метод удаления информации о самолёте из JSON-файла."""
+        try:
+            id_key = airplane.airplane_id if isinstance(airplane, Airplane) else airplane
+            if self._is_airplane_in_dataset(airplane):
+                logger.info(f"Данные о борте {id_key} найдены в файле.")
+
+                self._delete_airplane_from_dataset(id_key)
+                self._write_airplanes_data_to_file()
+
+                logger.info(f"Данные о борте {id_key} удалены из файла.")
+
+            else:
+                logger.info(f"Данные о борте {id_key} не найдены в файле.")
+
+        except Exception as e:
+            logger.error(f"Возникла ошибка: {e}")
+            raise
+
+    def get_airplane(self, airplane_id: str | Any) -> "Airplane | None":
+        """Метод получения информации о самолёте из JSON-файла.
+
+        Args:
+            airplane_id (str): Уникальный идентификационный номер самолета по ИКАО, отображаемый в шестнадцатеричном
+                формате, как он установлен в транспондере самолета (может быть неверным, пример номера "a50e93")
+        """
+        try:
+            if not isinstance(airplane_id, str):
+                logger.warning(f"Неверный формат ID самолёта: {type(airplane_id)}.")
+                return None
+            else:
+                if self._is_airplane_in_dataset(airplane_id):
+
+                    airplane_data = self._airplanes_data.get(airplane_id)
+                    if airplane_data is None:
+                        return None
+
+                    logger.info(f"Возвращение данных о борте {airplane_id} из JSON-файла.")
+                    return Airplane(aircraft_id=airplane_id, **airplane_data)
+
+                else:
+                    logger.warning(f"Данных о борте {airplane_id} не найдено в JSON-файле.")
+                    return None
+
+        except Exception as e:
+            logger.error(f"Возникла ошибка: {e}")
+            raise

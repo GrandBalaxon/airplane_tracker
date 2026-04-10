@@ -2,8 +2,8 @@ import logging
 
 from src.airplane import Airplane
 from src.api import AirplanesAPI
-from src.csv_saver import CSVStorage
-from src.json_saver import JSONStorage
+from src.csv_storage import CSVStorage
+from src.json_storage import JSONStorage
 from src.utils import create_saver, filter_airplanes, get_airplanes_by_altitude, sort_airplanes, get_top_airplanes, \
     print_airplanes, generate_filename, save_airplanes
 

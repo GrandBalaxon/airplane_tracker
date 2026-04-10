@@ -4,9 +4,9 @@ from pathlib import Path
 from typing import Any
 
 from src.airplane import Airplane
-from src.base_saver import BaseStorage
+from src.base_storage import BaseStorage
 
-logger = logging.getLogger("csv_saver")
+logger = logging.getLogger("csv_storage")
 
 
 class CSVStorage(BaseStorage):
@@ -89,66 +89,3 @@ class CSVStorage(BaseStorage):
             writer.writeheader()
             for row in rows:
                 writer.writerow(row)
-
-    def add_airplane(self, airplane: "Airplane") -> None:
-        """Метод добавления информации о самолёте в CSV-файл."""
-        try:
-            if self._is_airplane_in_dataset(airplane):
-                logger.info(f"Данные о борте {airplane.airplane_id} уже записаны.")
-            else:
-                self._add_airplane_to_dataset(airplane)
-                self._write_airplanes_data_to_file()
-
-                logger.debug(f"Данные о борте {airplane.airplane_id} записаны в файл.")
-
-        except Exception as e:
-            logger.error(f"Возникла ошибка: {e}")
-            raise
-
-    def delete_airplane(self, airplane: "Airplane | str") -> None:
-        """Абстрактный метод удаления информации о самолёте из CSV-файла."""
-        try:
-            id_key = airplane.airplane_id if isinstance(airplane, Airplane) else airplane
-            if self._is_airplane_in_dataset(airplane):
-                logger.info(f"Данные о борте {id_key} найдены в файле.")
-
-                self._delete_airplane_from_dataset(id_key)
-                self._write_airplanes_data_to_file()
-
-                logger.info(f"Данные о борте {id_key} удалены из файла.")
-
-            else:
-                logger.info(f"Данные о борте {id_key} не найдены в файле.")
-
-        except Exception as e:
-            logger.error(f"Возникла ошибка: {e}")
-            raise
-
-    def get_airplane(self, airplane_id: str | Any) -> "Airplane | None":
-        """Метод получения информации о самолёте из CSV-файла (при их наличии, иначе вернет None).
-
-        Args:
-            airplane_id (str): Уникальный идентификационный номер самолета по ИКАО, отображаемый в шестнадцатеричном
-                формате, как он установлен в транспондере самолета (может быть неверным, пример номера "a50e93")
-        """
-        try:
-            if not isinstance(airplane_id, str):
-                logger.warning(f"Неверный формат ID самолёта: {type(airplane_id)}.")
-                return None
-            else:
-                if self._is_airplane_in_dataset(airplane_id):
-
-                    airplane_data = self._airplanes_data.get(airplane_id)
-                    if airplane_data is None:
-                        return None
-
-                    logger.info(f"Возвращение данных о борте {airplane_id} из CSV-файла.")
-                    return Airplane(aircraft_id=airplane_id, **airplane_data)
-
-                else:
-                    logger.warning(f"Данных о борте {airplane_id} не найдено в CSV-файле.")
-                    return None
-
-        except Exception as e:
-            logger.error(f"Возникла ошибка: {e}")
-            raise

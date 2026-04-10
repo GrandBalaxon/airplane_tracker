@@ -1,7 +1,7 @@
 import csv
 
 from src.airplane import Airplane
-from src.csv_saver import CSVStorage
+from src.csv_storage import CSVStorage
 
 
 def test_json_saver_add_and_get(tmp_path):
