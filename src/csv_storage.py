@@ -1,15 +1,14 @@
 import csv
 import logging
 from pathlib import Path
-from typing import Any
 
 from src.airplane import Airplane
-from src.base_storage import BaseStorage
+from src.file_storage import FileStorage
 
 logger = logging.getLogger("csv_storage")
 
 
-class CSVStorage(BaseStorage):
+class CSVStorage(FileStorage):
     """Класс для сохранения информации о самолётах в CSV-файл.
 
     Attributes:
@@ -26,7 +25,7 @@ class CSVStorage(BaseStorage):
         self._airplanes_data = {}
         self._initialize_file()
 
-    def _get_airplanes_data_from_file(self) -> None:
+    def load(self) -> None:
         """Метод для извлечения данных о самолётах из прикрепленного к объекту класса файла."""
         try:
             with open(self._file_path, "r") as file:
@@ -69,7 +68,7 @@ class CSVStorage(BaseStorage):
             logger.info(f"Файл уже существует: {self._file_path}.")
             self._get_airplanes_data_from_file()
 
-    def _write_airplanes_data_to_file(self) -> None:
+    def save(self) -> None:
         """Приватный метод для внесения всех текущих данных из датасета в CSV-файл."""
         rows = []
         for airplane_id, data in self._airplanes_data.items():

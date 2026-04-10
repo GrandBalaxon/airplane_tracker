@@ -4,10 +4,17 @@ from typing import Any
 from src.airplane import Airplane
 from src.base_storage import BaseStorage
 
-
 logger = logging.getLogger("airplane_service")
 
+
 class AirplaneService:
+    """Класс для работы с информацией о самолётах (объектах класса Airplane).
+
+    Attributes:
+        _storage (BaseStorage): Хранилище экземпляра класса
+        _airplanes_data (dict): Датасет с данными о всех текущих самолётах в хранилище экземпляра класса.
+    """
+
     def __init__(self, storage: BaseStorage):
         self._storage = storage
         self._airplanes_data = storage.load()
@@ -23,8 +30,7 @@ class AirplaneService:
         """
         try:
             if len(self._airplanes_data) == 0:
-                file_extension = self.__class__._file_extension[1:].upper()
-                logger.info(f"Датасет/{file_extension}-файл пока что пуст.")
+                logger.info(f"Датасет пока что пуст.")
                 return False
             else:
                 if isinstance(airplane, Airplane):
@@ -85,7 +91,7 @@ class AirplaneService:
                 logger.info(f"Данные о борте {airplane.airplane_id} уже записаны.")
             else:
                 self._add_airplane_to_dataset(airplane)
-                self._write_airplanes_data_to_file()
+                self._storage.save()
 
                 logger.debug(f"Данные о борте {airplane.airplane_id} записаны в файл.")
 
@@ -101,7 +107,7 @@ class AirplaneService:
                 logger.info(f"Данные о борте {id_key} найдены в файле.")
 
                 self._delete_airplane_from_dataset(id_key)
-                self._write_airplanes_data_to_file()
+                self._storage.save()
 
                 logger.info(f"Данные о борте {id_key} удалены из файла.")
 

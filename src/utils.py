@@ -3,7 +3,7 @@ import re
 from datetime import datetime
 
 from src.airplane import Airplane
-from src.base_storage import BaseStorage
+from src.file_storage import FileStorage
 
 logger = logging.getLogger("utils")
 
@@ -18,12 +18,12 @@ def generate_filename(country: str, extension: str) -> str:
     )
 
 
-def create_saver(saver_class: type, file_name: str) -> BaseStorage:
+def create_saver(saver_class: type, file_name: str) -> FileStorage:
     """Создаёт и возвращает экземпляр saver."""
     return saver_class(file_name)
 
 
-def save_airplanes(saver: BaseStorage, airplanes: list[Airplane]) -> None:
+def save_airplanes(saver: FileStorage, airplanes: list[Airplane]) -> None:
     """Сохраняет список самолётов в saver."""
     for airplane in airplanes:
         saver.add_airplane(airplane)

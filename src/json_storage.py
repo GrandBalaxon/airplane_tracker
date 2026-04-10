@@ -2,15 +2,13 @@ import json
 import logging
 from json import JSONDecodeError
 from pathlib import Path
-from typing import Any
 
-from src.airplane import Airplane
-from src.base_storage import BaseStorage
+from src.file_storage import FileStorage
 
 logger = logging.getLogger("json_storage")
 
 
-class JSONStorage(BaseStorage):
+class JSONStorage(FileStorage):
     """Класс для сохранения информации о самолётах в JSON-файл.
 
     Attributes:
@@ -27,8 +25,8 @@ class JSONStorage(BaseStorage):
         self._airplanes_data = {}
         self._initialize_file()
 
-    def _get_airplanes_data_from_file(self) -> None:
-        """Метод для извлечения данных о самолётах из прикрепленного к объекту класса JSON-файла."""
+    def load(self) -> None:
+        """Метод для загрузки данных о самолётах из прикрепленного к объекту класса JSON-файла."""
         try:
             with open(self._file_path, "r") as file:
                 self._airplanes_data = json.load(file)
@@ -57,9 +55,9 @@ class JSONStorage(BaseStorage):
                 raise
         else:
             logger.info(f"Файл уже существует: {self._file_path}.")
-            self._get_airplanes_data_from_file()
+            self.load()
 
-    def _write_airplanes_data_to_file(self) -> None:
+    def save(self) -> None:
         """Приватный метод для внесения всех текущих данных из датасета в JSON-файл."""
         with open(self._file_path, mode="w") as file:
             json.dump(self._airplanes_data, file, indent=4)
