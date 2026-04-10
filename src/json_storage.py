@@ -31,6 +31,10 @@ class JSONStorage(FileStorage):
             with open(self._file_path, "r") as file:
                 result = json.load(file)
 
+                if not isinstance(result, dict):
+                    logger.warning("Некорректный формат данных. Используется пустой датасет.")
+                    return {}
+
                 logger.info(f"Из файла выгружены данные.")
                 return result
 

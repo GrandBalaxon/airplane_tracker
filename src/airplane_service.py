@@ -19,44 +19,48 @@ class AirplaneService:
         self._storage = storage
         self._airplanes_data = storage.load()
 
-    def _is_airplane_in_dataset(self, airplane: "Airplane | str") -> bool | None:
+    def _airplane_exists(self, airplane_id: str) -> bool:
+        """Проверка наличия самолёта в датасете по ID."""
+        if not self._airplanes_data:
+            logger.info("Датасет пока что пуст.")
+            return False
+
+        return airplane_id in self._airplanes_data
+
+    def _is_same_airplane(self, airplane: Airplane) -> bool:
+        """Проверка полного совпадения данных самолёта."""
+        airplane_id = airplane.airplane_id
+
+        if not self._airplane_exists(airplane_id):
+            return False
+
+        data = self._airplanes_data[airplane_id]
+
+        return (
+                data["country"] == airplane.country
+                and data["on_ground"] == airplane.on_ground
+                and data["velocity"] == airplane.velocity
+                and data["geo_altitude"] == airplane.geo_altitude
+        )
+
+    def _is_airplane_in_dataset(self, airplane: "Airplane | str") -> bool:
         """
-        Метод проверки наличия данных о самолёте в датасете экземпляра класса.
+        Универсальный метод проверки наличия самолёта.
 
-        Если на вход даётся объект класса "Airplane" - то проверяет все его данные.
-        При точном совпадении всех данных о борте - возвращает True.
-
-        Если на вход даётся строка с "airplane_id", то проверяется наличие данных о данном самолёте по его ID.
+        - str → проверка по ID
+        - Airplane → проверка полного совпадения
         """
         try:
-            if len(self._airplanes_data) == 0:
-                logger.info(f"Датасет пока что пуст.")
-                return False
+            if isinstance(airplane, str):
+                return self._airplane_exists(airplane)
+
+            elif isinstance(airplane, Airplane):
+                return self._is_same_airplane(airplane)
+
             else:
-                if isinstance(airplane, Airplane):
-                    id_key = airplane.airplane_id
-
-                    if id_key in self._airplanes_data:
-                        if (
-                            self._airplanes_data[id_key]["country"] == airplane.country
-                            and self._airplanes_data[id_key]["on_ground"] == airplane.on_ground
-                            and self._airplanes_data[id_key]["velocity"] == airplane.velocity
-                            and self._airplanes_data[id_key]["geo_altitude"] == airplane.geo_altitude
-                        ):
-                            return True
-                        else:
-                            return False
-                    else:
-                        return False
-
-                elif isinstance(airplane, str):
-                    if airplane in self._airplanes_data:
-                        return True
-                    else:
-                        return False
-
-                else:
-                    raise TypeError(f"Неверный формат {type(airplane)}, ожидается объект класса Airplane или str.")
+                raise TypeError(
+                    f"Неверный формат {type(airplane)}, ожидается Airplane или str."
+                )
 
         except Exception as e:
             logger.error(f"Непредвиденная ошибка: {e}")
@@ -79,10 +83,7 @@ class AirplaneService:
 
     def get_airplanes_amount(self) -> int:
         """Геттер выдающий текущее количество самолетов в датасете/файле экземпляра класса."""
-        if len(self._airplanes_data) > 0:
-            return len(self._airplanes_data)
-        else:
-            return 0
+        return len(self._airplanes_data)
 
     def add_airplane(self, airplane: "Airplane") -> None:
         """Метод добавления информации о самолёте в JSON-файл."""
@@ -91,7 +92,7 @@ class AirplaneService:
                 logger.info(f"Данные о борте {airplane.airplane_id} уже записаны.")
             else:
                 self._add_airplane_to_dataset(airplane)
-                self._storage.save()
+                self._storage.save(self._airplanes_data)
 
                 logger.debug(f"Данные о борте {airplane.airplane_id} записаны в файл.")
 
@@ -107,7 +108,7 @@ class AirplaneService:
                 logger.info(f"Данные о борте {id_key} найдены в файле.")
 
                 self._delete_airplane_from_dataset(id_key)
-                self._storage.save()
+                self._storage.save(self._airplanes_data)
 
                 logger.info(f"Данные о борте {id_key} удалены из файла.")
 
