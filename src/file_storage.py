@@ -19,6 +19,20 @@ class FileStorage(BaseStorage, ABC):
     _file_name: str
     _file_path: Path
 
+    def __init__(self, file_name: str | None = None):
+        if file_name:
+            self._file_name = file_name
+        else:
+            self._file_name = self._default_file_name()
+
+        self._file_path: Path = self._get_path()
+        self._initialize_file()
+
+    @abstractmethod
+    def _default_file_name(self) -> str:
+        """Дефолтное имя файла для конкретного storage."""
+        pass
+
     @abstractmethod
     def _initialize_file(self) -> None:
         """Абстрактный метод для проверки существования файла и его инициализации при отсутствии."""

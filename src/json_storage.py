@@ -19,18 +19,19 @@ class JSONStorage(FileStorage):
 
     _file_extension = ".json"
 
-    def __init__(self, file_name: str = "airplanes_data.json"):
-        self._file_name = file_name
-        self._file_path: Path = self._get_path()
-        self._initialize_file()
+    def __init__(self, file_name: str | None = None):
+        super().__init__(file_name)
+
+    def _default_file_name(self) -> str:
+        return "airplanes_data.json"
 
     def load(self) -> dict[str, Any]:
         """Метод для загрузки данных о самолётах из прикрепленного к объекту класса JSON-файла."""
         try:
             with open(self._file_path, "r") as file:
                 result = json.load(file)
-                logger.info(f"Из файла выгружены данные.")
 
+                logger.info(f"Из файла выгружены данные.")
                 return result
 
         except JSONDecodeError as e:
@@ -56,7 +57,6 @@ class JSONStorage(FileStorage):
                 raise
         else:
             logger.info(f"Файл уже существует: {self._file_path}.")
-            self.load()
 
     def save(self, data: dict[str, Any]) -> None:
         """Приватный метод для внесения всех текущих данных из датасета в JSON-файл."""
