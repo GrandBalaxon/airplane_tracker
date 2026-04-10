@@ -3,7 +3,7 @@
 ![Python](https://img.shields.io/badge/python-3.9+-blue.svg)
 ![Requests](https://img.shields.io/badge/library-requests-green.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
-![Coverage](https://img.shields.io/badge/coverage-81%25-yellow)
+![Coverage](https://img.shields.io/badge/coverage-84%25-yellow)
 
 ---
 
@@ -113,14 +113,23 @@ python main.py
   - поддержка сравнения (по высоте и скорости)  
   - используется `__slots__`
 
-- `BaseFileSaver` — абстрактный класс для работы с файлами  
-- `JSONSaver`, `CSVSaver` — реализация сохранения данных  
+- `AirplaneService`
+  - управление данными самолётов
+  - проверка существования
+  - предотвращение дубликатов
+  - добавление / удаление / получение данных 
+
+- Слой хранения:
+  - `BaseStorage` — абстракция хранилища
+  - `FileStorage` — базовый класс для файлов
+  - `JSONStorage` — работа с JSON
+  - `CSVStorage` — работа с CSV  
 
 - `utils.py` — вспомогательные функции:
-  - фильтрация и сортировка самолётов
-  - выбор формата сохранения
   - генерация имени файла
-  - создание saver-классов
+  - создание хранилища
+  - сохранение через сервис
+  - фильтрация и сортировка данных
 
 ---
 
@@ -132,9 +141,10 @@ python main.py
 - CSV
 
 Особенности:
-- данные сохраняются через внутренний датасет
-- файл обновляется без потери уже сохранённых данных
+- единый интерфейс через BaseStorage
+- данные обрабатываются через AirplaneService
 - отсутствуют дубликаты
+- автоматическое создание файла при отсутствии
 
 ---
 
@@ -179,9 +189,11 @@ src/
 ├── api.py
 ├── base_api.py
 ├── airplane.py
-├── base_saver.py
-├── json_saver.py
-├── csv_saver.py
+├── airplane_service.py
+├── base_storage.py
+├── file_storage.py
+├── json_storage.py
+├── csv_storage.py
 ├── utils.py
 │
 data/
