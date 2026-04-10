@@ -5,12 +5,12 @@ from pathlib import Path
 from typing import Any
 
 from src.airplane import Airplane
-from src.base_saver import BaseFileSaver
+from src.base_saver import BaseStorage
 
 logger = logging.getLogger("json_saver")
 
 
-class JSONSaver(BaseFileSaver):
+class JSONStorage(BaseStorage):
     """Класс для сохранения информации о самолётах в JSON-файл.
 
     Attributes:

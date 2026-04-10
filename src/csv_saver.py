@@ -4,12 +4,12 @@ from pathlib import Path
 from typing import Any
 
 from src.airplane import Airplane
-from src.base_saver import BaseFileSaver
+from src.base_saver import BaseStorage
 
 logger = logging.getLogger("csv_saver")
 
 
-class CSVSaver(BaseFileSaver):
+class CSVStorage(BaseStorage):
     """Класс для сохранения информации о самолётах в CSV-файл.
 
     Attributes:

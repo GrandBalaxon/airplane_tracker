@@ -1,13 +1,13 @@
 import csv
 
 from src.airplane import Airplane
-from src.csv_saver import CSVSaver
+from src.csv_saver import CSVStorage
 
 
 def test_json_saver_add_and_get(tmp_path):
     """Тест добавления самолёта в CSV и получения его обратно."""
     file_path = tmp_path / "test.csv"
-    saver = CSVSaver(str(file_path))
+    saver = CSVStorage(str(file_path))
 
     plane = Airplane("p1", "USA", False, 200.0, 1000.0)
 
@@ -23,7 +23,7 @@ def test_json_saver_no_duplicates(tmp_path):
     """Тест, что один и тот же самолёт не дублируется."""
 
     file_path = tmp_path / "test.json"
-    saver = CSVSaver(str(file_path))
+    saver = CSVStorage(str(file_path))
 
     plane = Airplane("p1", "USA", False, 200.0, 1000.0)
 
@@ -36,7 +36,7 @@ def test_json_saver_no_duplicates(tmp_path):
 def test_json_saver_delete(tmp_path):
     """Тест удаления самолёта из JSON."""
     file_path = tmp_path / "test.json"
-    saver = CSVSaver(str(file_path))
+    saver = CSVStorage(str(file_path))
 
     plane = Airplane("p1", "USA", False, 200.0, 1000.0)
 
@@ -66,7 +66,7 @@ def test_csv_saver_loads_existing_file(tmp_path):
             }
         )
 
-    saver = CSVSaver(str(file_path))
+    saver = CSVStorage(str(file_path))
     result = saver.get_airplane("p1")
 
     assert result.airplane_id == "p1"
@@ -89,7 +89,7 @@ def test_csv_type_conversion(tmp_path):
             }
         )
 
-    saver = CSVSaver(str(file_path))
+    saver = CSVStorage(str(file_path))
     plane = saver.get_airplane("p1")
 
     assert isinstance(plane.velocity, float)
@@ -103,7 +103,7 @@ def test_get_airplane_invalid_id_type_csv(tmp_path):
     with open(file_path, "w", newline="") as f:
         f.write("airplane_id,country,on_ground,velocity,geo_altitude\n")
 
-    saver = CSVSaver(str(file_path.name))
+    saver = CSVStorage(str(file_path.name))
     saver._file_path = file_path
 
     result = saver.get_airplane(123)

@@ -8,7 +8,7 @@ from src.airplane import Airplane
 logger = logging.getLogger("base_saver")
 
 
-class BaseFileSaver(ABC):
+class BaseStorage(ABC):
     """Абстрактный базовый класс для сохранения в различные типы файлов."""
 
     _file_extension = ""
