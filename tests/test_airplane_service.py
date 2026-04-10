@@ -1,5 +1,3 @@
-import pytest
-
 from src.airplane import Airplane
 from src.airplane_service import AirplaneService
 
@@ -130,14 +128,16 @@ def test_airplane_exists(sample_airplanes):
     """Тест проверки существования самолёта по ID."""
     plane = sample_airplanes[0]
 
-    storage = FakeStorage({
-        plane.airplane_id: {
-            "country": plane.country,
-            "on_ground": plane.on_ground,
-            "velocity": plane.velocity,
-            "geo_altitude": plane.geo_altitude,
+    storage = FakeStorage(
+        {
+            plane.airplane_id: {
+                "country": plane.country,
+                "on_ground": plane.on_ground,
+                "velocity": plane.velocity,
+                "geo_altitude": plane.geo_altitude,
+            }
         }
-    })
+    )
 
     service = AirplaneService(storage)
 
@@ -149,25 +149,23 @@ def test_is_same_airplane_data(sample_airplanes):
     """Тест проверки полного совпадения данных самолёта."""
     plane = sample_airplanes[0]
 
-    storage = FakeStorage({
-        plane.airplane_id: {
-            "country": plane.country,
-            "on_ground": plane.on_ground,
-            "velocity": plane.velocity,
-            "geo_altitude": plane.geo_altitude,
+    storage = FakeStorage(
+        {
+            plane.airplane_id: {
+                "country": plane.country,
+                "on_ground": plane.on_ground,
+                "velocity": plane.velocity,
+                "geo_altitude": plane.geo_altitude,
+            }
         }
-    })
+    )
 
     service = AirplaneService(storage)
 
     assert service._is_same_airplane_data(plane) is True
 
     modified_plane = Airplane(
-        plane.airplane_id,
-        plane.country,
-        plane.on_ground,
-        plane.velocity + 1,  # изменили
-        plane.geo_altitude
+        plane.airplane_id, plane.country, plane.on_ground, plane.velocity + 1, plane.geo_altitude  # изменили
     )
 
     assert service._is_same_airplane_data(modified_plane) is False

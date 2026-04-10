@@ -60,10 +60,7 @@ def test_csv_storage_type_conversion(tmp_path):
     file_path = tmp_path / "test.csv"
 
     with open(file_path, "w", newline="") as f:
-        writer = csv.DictWriter(
-            f,
-            fieldnames=["airplane_id", "country", "on_ground", "velocity", "geo_altitude"]
-        )
+        writer = csv.DictWriter(f, fieldnames=["airplane_id", "country", "on_ground", "velocity", "geo_altitude"])
         writer.writeheader()
         writer.writerow(
             {
@@ -125,10 +122,7 @@ def test_csv_storage_load_existing_file(tmp_path):
     file_path = tmp_path / "test.csv"
 
     with open(file_path, "w", newline="") as f:
-        writer = csv.DictWriter(
-            f,
-            fieldnames=["airplane_id", "country", "on_ground", "velocity", "geo_altitude"]
-        )
+        writer = csv.DictWriter(f, fieldnames=["airplane_id", "country", "on_ground", "velocity", "geo_altitude"])
         writer.writeheader()
         writer.writerow(
             {
