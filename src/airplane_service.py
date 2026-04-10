@@ -37,10 +37,10 @@ class AirplaneService:
         data = self._airplanes_data[airplane_id]
 
         return (
-                data["country"] == airplane.country
-                and data["on_ground"] == airplane.on_ground
-                and data["velocity"] == airplane.velocity
-                and data["geo_altitude"] == airplane.geo_altitude
+            data["country"] == airplane.country
+            and data["on_ground"] == airplane.on_ground
+            and data["velocity"] == airplane.velocity
+            and data["geo_altitude"] == airplane.geo_altitude
         )
 
     def _is_airplane_in_dataset(self, airplane: "Airplane | str") -> bool:
@@ -58,9 +58,7 @@ class AirplaneService:
                 return self._is_same_airplane_data(airplane)
 
             else:
-                raise TypeError(
-                    f"Неверный формат {type(airplane)}, ожидается Airplane или str."
-                )
+                raise TypeError(f"Неверный формат {type(airplane)}, ожидается Airplane или str.")
 
         except Exception as e:
             logger.error(f"Непредвиденная ошибка: {e}")
